@@ -5,7 +5,7 @@ Owner: B.  Generated from the four development institutions by
 
 Everything here is a template or a phrase pattern. No case id, customer
 name, amount or document id from the development data is stored in the
-system (CONTRACT.md §1).
+system (docs/CONTRACT.md §1).
 
 ## 1. Fingerprints
 

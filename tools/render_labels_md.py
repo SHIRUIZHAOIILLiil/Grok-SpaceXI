@@ -48,7 +48,7 @@ one device it is account misuse. Read the text, not the type.
 
 **Stance.** The labels are deliberately conservative, because the costs are
 asymmetric: a wrong CLOSE costs 10, a needless RFI 3, a needless escalation 2-3,
-and CONTRACT.md §5 says unexplained activity escalates rather than closes. So:
+and docs/CONTRACT.md §5 says unexplained activity escalates rather than closes. So:
 
 - a combination with no document that answers the alert and no account from the
   customer is labelled `ESCALATE / ESC_UNEXPLAINED_FUNDS`, even where an RFI
@@ -74,7 +74,7 @@ METHOD = """
    four institutions; 27 in the bank alone.
 3. Each alert rule is then matched against the documents that can answer it, per
    the rule table in that institution's `POLICY.md`. A case is CLOSE only when
-   *every* alert it raised is answered by a document (CONTRACT.md §5: one
+   *every* alert it raised is answered by a document (docs/CONTRACT.md §5: one
    unexplained alert keeps the case open).
 4. Where a document's meaning depends on its wording, the wording decides, with
    explicit patterns: `send it on` / `payments assistant` / `invest for them`

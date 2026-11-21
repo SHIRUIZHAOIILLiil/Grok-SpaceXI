@@ -8,6 +8,12 @@ reason that cites the actual amounts, dates and document IDs, and the evidence I
 Built for **Grok Bot London Financial Crime Hackathon — Track 1, "Stop suspicious payments"**.
 Four institutions, 1,000 development cases each, no answers given.
 
+**Live console** — https://grok-spacexi.vercel.app · **Video** — `submission/casefile-2min.mp4` (2:10, narrated) · **Deck** — `submission/deck.html`
+
+New here? `docs/ARCHITECTURE.md` (how it works) · `docs/DECISIONS.md` (why, with evidence) ·
+`docs/DATA.md` (the dataset) · `docs/RUNBOOK.md` (every command) · `docs/CONTRACT.md` (the frozen
+contract).
+
 ```json
 {"case_id": "BK-CS100112", "alert_ids": ["BK-AL2445260", "BK-AL2450697"], "verdict": "CLOSE", "reason_code": "REFUND_OF_EARLIER_PAYMENT", "reason": "The £7,702.22 is not new money: the venue email (EML-8464) confirms a full refund of the deposit for the cancelled booking, and the amount returned matches the amount paid out earlier. …", "evidence": ["BK-T721472580", "BK-T958921779", "EML-8464"]}
 ```
@@ -270,23 +276,31 @@ of model time per run, and the first transport error disables the model for the 
   contain document templates we have not seen, which fall back to ESCALATE by design.
 - `RFI` vs `ESCALATE` on thin evidence is the hardest boundary; the current split is conservative on
   suspicion and costs verdict points where an RFI would have been enough.
-- At 12:24 GMT, 36 of the 4,000 reason strings repeat their own appositive in the corridor
-  sentence ("moved to or from a higher-risk country, a higher-risk country the customer did not
-  declare"). Cosmetic, but the reason is 40% of each score, so it is on the list to fix.
+- `WITHIN_PROFILE` never fires on the development set: its gate is deliberately narrow (TM01 only,
+  ≤3.05×, ≤£10,000, every country and channel inside the declared profile), because closing an
+  undocumented income spike is the most expensive error in the matrix.
 
 ## Repository layout
 
 ```
-system/          run, main.py, features.py, evidence.py, decide.py, emit.py, policy/*.json
+system/          run, main.py, features.py, evidence.py, decide.py, emit.py
+                 policy/*.json   every threshold, with the POLICY.md sentence it came from
+                 extract.py, second_opinion.py   optional model layer, off by default
 output/          bank.jsonl, payments_fx.jsonl, emoney.jsonl, investment.jsonl  (1,000 lines each)
-ui/              server.py (stdlib console), screenshot.png, benchmark.json (measured timings)
-submission/      form.md, video-script.md, demo-3min.md
-CONTRACT.md      the frozen output contract and file ownership
-AGENTS.md        coding rules: stdlib only, determinism, no dev data in code
+tools/           validate.py, repro.sh, report.py, selftest.py, audit.py, neon_sync.py,
+                 build_labels.py, labels.json, case_labels.jsonl
+ui/              server.py (stdlib console), build_static.py, screenshot.png, benchmark.json
+submission/      deck.html (narrated), casefile-2min.mp4, form.md, video-script.md, demo-3min.md
+docs/            ARCHITECTURE.md  how it works, layer by layer
+                 DECISIONS.md     why each choice, and what would change it
+                 DATA.md          the dataset, its shape, and the traps in it
+                 RUNBOOK.md       every command
+                 CONTRACT.md      frozen I/O contract, file ownership, coding rules
 ```
 
 `data/` is excluded from the repository under the event terms; `output/` is included so the
-verdicts can be read without running anything.
+verdicts can be read without running anything. `site-demo/` is the exported console that Vercel
+serves, regenerated from `output/` and `data/` by `ui/build_static.py`.
 
 ---
 

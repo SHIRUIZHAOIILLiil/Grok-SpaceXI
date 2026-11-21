@@ -5,7 +5,7 @@ against it. Python 3 standard library only.
 
 | file | what it does | exit code |
 |---|---|---|
-| `validate.py` | checks one output file against CONTRACT.md §2/§5 | 0 pass, 1 fail, 2 bad usage |
+| `validate.py` | checks one output file against docs/CONTRACT.md §2/§5 | 0 pass, 1 fail, 2 bad usage |
 | `repro.sh` | runs all four institutions N times and byte-compares | 0 identical, 1 difference |
 | `report.py` | verdict/rule/reason/evidence statistics, optional agreement with the labels | 0 |
 | `labels.json` + `LABELS.md` | the dev pseudo-label table, by evidence-type combination | — |

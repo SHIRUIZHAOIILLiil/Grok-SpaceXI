@@ -1,6 +1,6 @@
 """Build the per-case feature dict. Standard library only.
 
-Owner: B.  Signature is frozen in CONTRACT.md - do not change it.
+Owner: B.  Signature is frozen in docs/CONTRACT.md - do not change it.
 
 Two things this module is responsible for:
 

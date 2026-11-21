@@ -1,6 +1,6 @@
 """Evidence access for one institution folder. Standard library only.
 
-Owner: B.  Frozen signatures (CONTRACT.md §4) are unchanged; everything else
+Owner: B.  Frozen signatures (docs/CONTRACT.md §4) are unchanged; everything else
 here is additive:
 
   * ``skeleton``      - template fingerprint (unchanged behaviour)

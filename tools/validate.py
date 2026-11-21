@@ -12,7 +12,7 @@ Options:
 
 Exit code: 0 = pass, 1 = validation failed, 2 = bad usage / unreadable input.
 
-Checks, per contract (CONTRACT.md §2, §5):
+Checks, per contract (docs/CONTRACT.md §2, §5):
   1. each line is a JSON object with the six fields, right types
   2. verdict in {CLOSE, RFI, ESCALATE}
   3. reason_code belongs to that verdict (system/policy/<inst>.json when readable)
@@ -37,7 +37,7 @@ import os
 import re
 import sys
 
-# Canonical code table from CONTRACT.md. Only used when the policy file cannot
+# Canonical code table from docs/CONTRACT.md. Only used when the policy file cannot
 # be read; it never overrides system/policy/<inst>.json.
 CANONICAL = {
     "CLOSE": [
@@ -61,7 +61,7 @@ CANONICAL = {
 VERDICTS = ("CLOSE", "RFI", "ESCALATE")
 FIELDS = ("case_id", "alert_ids", "verdict", "reason_code", "reason", "evidence")
 
-# Sentences that fit any case, so they earn nothing (AGENTS.md reason rules).
+# Sentences that fit any case, so they earn nothing (docs/CONTRACT.md reason rules).
 GENERIC_PATTERNS = [
     r"经审阅(相关)?证据",
     r"(该|此)?(活动|交易|行为)(已|已被)(解释|核实|确认)",
