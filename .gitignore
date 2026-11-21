@@ -20,3 +20,12 @@ build/
 
 # local model key for testing this box only; never committed
 .openrouter_key
+
+# local test key (never committed)
+.llm_key
+
+# neon / local env (never committed)
+.env.local
+.neon_key
+.neon
+.neon_url
