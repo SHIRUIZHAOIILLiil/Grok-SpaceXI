@@ -24,7 +24,7 @@
 
 ## 3. 项目简介（20–1200 字符）
 
-官方限制 **20–1200 characters**，按字符数（含空格）算。下面这版实测 **997 字符**（含空格），可直接粘贴：
+官方限制 **20–1200 characters**，按字符数（含空格）算。下面这版实测 **1017 字符**（含空格），可直接粘贴：
 
 > Casefile closes transaction-monitoring alerts by reading the evidence, not by guessing. For each
 > case it takes the alerts as measured facts and finds the documents on file that carry the same
@@ -33,8 +33,8 @@
 > ESCALATE with a reason code, a two-to-four sentence reason citing real amounts, dates and
 > document IDs, and the evidence IDs it relied on. Four institutions run different policies —
 > profile multiples, cash thresholds, beneficiary limits and which rules exist — so every threshold
-> is read per institution, never as a global constant. The system is a pure function of the case:
-> Python standard library only, no network, no model calls, byte-identical output across runs, and
+> is read per institution, never as a global constant. The decision is a pure function of the case:
+> Python standard library only, no network and no model in the decision path, byte-identical output across runs, and
 > 4,000 cases in 5.5 seconds. A console shows the whole chain — alert, transactions, documents,
 > verdict, reason — with every cited document one click away.
 
