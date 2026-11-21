@@ -1,0 +1,13 @@
+# official participant data — never commit (event terms)
+data/
+# private Hermes runtime / tokens / auth state
+hermes/
+.env
+*.env
+# briefing packet (reference only)
+hackathon-briefing/
+# tooling noise
+__pycache__/
+*.pyc
+.DS_Store
+scratch/

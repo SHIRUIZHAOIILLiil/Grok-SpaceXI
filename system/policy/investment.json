@@ -1,0 +1,76 @@
+{
+ "_source": "data/institutions/<inst>/POLICY.md — verify every number against the file before use (owner A)",
+ "codes": {
+  "CLOSE": [
+   "COLLECTION_DOCUMENTED",
+   "BUSINESS_RECORDS_RECONCILE",
+   "DOCUMENTED_EVENT",
+   "INVOICE_MATCHES",
+   "OWN_ACCOUNT",
+   "GROUP_COMPANY",
+   "THIRD_PARTY_DOCUMENTED",
+   "REFUND_OF_EARLIER_PAYMENT",
+   "RETURNING_CUSTOMER",
+   "LIST_MATCH_DIFFERENT_PARTY",
+   "WITHIN_PROFILE"
+  ],
+  "RFI": [
+   "RFI_PURPOSE_DOCUMENTS",
+   "RFI_BUSINESS_RECORDS",
+   "RFI_SOURCE_OF_FUNDS",
+   "RFI_COUNTERPARTY_DETAILS",
+   "RFI_UPDATED_PROFILE"
+  ],
+  "ESCALATE": [
+   "ESC_MULE_ACTIVITY",
+   "ESC_STRUCTURING",
+   "ESC_UNEXPLAINED_FUNDS",
+   "ESC_PASS_THROUGH",
+   "ESC_INVOICE_MISMATCH",
+   "ESC_HIGH_RISK_CORRIDOR",
+   "ESC_ACCOUNT_MISUSE",
+   "ESC_THIRD_PARTY_FUNDING",
+   "ESC_EARLY_REDEMPTION",
+   "ESC_LISTED_PARTY"
+  ]
+ },
+ "high_risk_countries": [
+  "Afghanistan",
+  "Belarus",
+  "Democratic Republic of the Congo",
+  "Haiti",
+  "Iran",
+  "Iraq",
+  "Lebanon",
+  "Libya",
+  "Mali",
+  "Myanmar",
+  "North Korea",
+  "Russia",
+  "Somalia",
+  "South Sudan",
+  "Syria",
+  "Venezuela",
+  "Yemen"
+ ],
+ "own_account_rfi_multiple": 5,
+ "context_only": [
+  "round amount",
+  "shared device",
+  "shared IP",
+  "shared contact",
+  "recipient added same day",
+  "crypto counterparty",
+  "gambling counterparty"
+ ],
+ "tm01_multiple_individual": 3,
+ "tm02_share": 0.8,
+ "tm02_withdrawn_days": 10,
+ "tm02_invested_share": 0.2,
+ "tm06_min": 5000,
+ "tm07_min": 5000,
+ "tm07_days": 180,
+ "tm08_min": 1000,
+ "tm10_days": 90,
+ "_institution": "investment"
+}
