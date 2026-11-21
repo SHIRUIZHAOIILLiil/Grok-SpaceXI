@@ -713,6 +713,45 @@ def _list_match(case):
             if entry_party and entry_party.lower() in text.lower():
                 same = (doc, entry)
 
+    # A hard contradiction found in the feature layer settles the match even
+    # when the local parser cannot read the date out of the document wording,
+    # e.g. a date of birth written into the body of a gift letter.
+    for match in case.list_matches:
+        if not isinstance(match, dict):
+            continue
+        entry = match.get("entry") or {}
+        if entry_id and entry.get("entry_id") not in (None, entry_id):
+            continue
+        if match.get("verdict_hint") != "different_party":
+            continue
+        hard = [d for d in (match.get("differences") or [])
+                if isinstance(d, dict) and d.get("field") == "dob"]
+        if not hard:
+            continue
+        d = hard[0]
+        party_dob, entry_dob = d.get("party") or "", d.get("entry") or ""
+        try:
+            gap = abs(int(entry_dob[:4]) - int(party_dob[:4]))
+        except (TypeError, ValueError):
+            gap = 0
+        if gap < 2:
+            continue
+        ids = [i for i in (match.get("evidence_ids") or []) if i]
+        doc = ids[0] if ids else "on file"
+        return case.result(
+            "CLOSE", "LIST_MATCH_DIFFERENT_PARTY",
+            "The {amount} {flow} {party} was flagged against internal list entry "
+            "{entry_id} on {basis}. The document on file ({doc}) gives that person a "
+            "date of birth of {pdob}, while the listed entry {listed} gives {edob} - "
+            "{gap} years apart. A shared name is the only thing they have in common, "
+            "so the counterparty is not the listed party and the case is closed.".format(
+                amount=_money(matched_amount), party=case.party or "the counterparty",
+                entry_id=entry_id or "on file", basis=basis or "name", doc=doc,
+                listed=entry.get("name") or "the listed party",
+                pdob=_short_date(party_dob), edob=_short_date(entry_dob),
+                gap=gap, flow=flow),
+            ids)
+
     if same and not different:
         doc, entry = same
         return case.result(
@@ -1198,13 +1237,25 @@ def _unexplained(case):
             "redemption used to move funds is escalated.".format(
                 days=_days_between(case.lead_message), amount=amount), ids)
     if "TM06" in case.rules:
+        corridor = 0.0
+        for alert in case.alerts:
+            if alert.get("rule_id") != "TM06":
+                continue
+            try:
+                corridor = max(corridor, float((alert.get("measured") or {}).get("total_gbp") or 0))
+            except (TypeError, ValueError):
+                pass
+        # Quote the corridor total, not the largest figure in the case: the
+        # reason has to match the measured value of the alert it explains.
+        corridor_amount = _money(corridor) if corridor else amount
         return case.result(
             "ESCALATE", "ESC_HIGH_RISK_CORRIDOR",
             "{amount} moved to or from {country}, a higher-risk country the customer did not "
             "declare, and the only account of it is the customer's own unsupported statement "
             "that it is family support. No invoice, transfer record or recipient detail is on "
             "file for {party}. Unexplained payments on a higher-risk corridor are escalated to "
-            "the MLRO.".format(amount=amount, country=country or "a higher-risk country",
+            "the MLRO.".format(amount=corridor_amount,
+                               country=country or "a higher-risk country",
                                party=party), ids)
     if pass_through:
         return case.result(
