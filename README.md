@@ -1,3 +1,5 @@
+<img src="assets/logo.svg" alt="Casefile" width="360">
+
 # Casefile — read the alert, read the evidence, write the verdict
 
 A deterministic alert-closing system for financial-crime transaction monitoring. It reads one case

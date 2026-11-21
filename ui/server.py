@@ -340,6 +340,7 @@ PAGE = r"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml;utf8,<svg class='logo' viewBox='0 0 64 64' aria-hidden='true'><rect x='1' y='1' width='62' height='62' rx='14' fill='%23151c26' stroke='%232a3444' stroke-width='2'/><path d='M18 15h18l10 10v24a2 2 0 0 1-2 2H18a2 2 0 0 1-2-2V17a2 2 0 0 1 2-2z' fill='none' stroke='%23f2f5fa' stroke-width='3' stroke-linejoin='round'/><path d='M36 15v10h10' fill='none' stroke='%23f2f5fa' stroke-width='3' stroke-linejoin='round'/><path d='M24 36l5 5 11-11' fill='none' stroke='%23c9a44c' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Track 1 · Alert review console</title>
 <style>
@@ -355,6 +356,8 @@ header{flex:none}
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 header{padding:12px 16px 0;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0e151d,#0a0e13)}
+.logo{width:30px;height:30px;flex:0 0 auto;margin-right:2px}
+.htop .brand{color:#f2f5fa;letter-spacing:-.3px}
 .htop{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
 h1{font-size:15px;margin:0;letter-spacing:.2px}
 .htop .sub{color:var(--dim);font-size:12px}
@@ -487,7 +490,8 @@ pre.rawjson{margin:6px 0 0;background:#0a1119;border:1px solid var(--line);borde
 <body>
 <header>
   <div class="htop">
-    <h1>Track 1 · Suspicious payment alert review</h1>
+    <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect x="1" y="1" width="62" height="62" rx="14" fill="#151c26" stroke="#2a3444" stroke-width="2"/><path d="M18 15h18l10 10v24a2 2 0 0 1-2 2H18a2 2 0 0 1-2-2V17a2 2 0 0 1 2-2z" fill="none" stroke="#f2f5fa" stroke-width="3" stroke-linejoin="round"/><path d="M36 15v10h10" fill="none" stroke="#f2f5fa" stroke-width="3" stroke-linejoin="round"/><path d="M24 36l5 5 11-11" fill="none" stroke="#c9a44c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1><span class="brand">Casefile</span> · Track 1 alert review</h1>
     <span class="sub">alert → evidence → verdict → reason, every claim clickable</span>
     <span class="facts" id="facts"></span>
   </div>

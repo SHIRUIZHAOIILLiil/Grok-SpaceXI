@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 128" width="460" height="128" role="img" aria-label="Casefile">
+  <!-- plate so the lockup reads on light or dark pages -->
+  <rect x="0" y="0" width="460" height="128" rx="22" fill="#0f1319"/>
+  <rect x="0.5" y="0.5" width="459" height="127" rx="22" fill="none" stroke="#2a3444"/>
+  <!-- mark -->
+  <rect x="26" y="34" width="60" height="60" rx="14" fill="#151c26" stroke="#2a3444" stroke-width="2"/>
+  <path d="M42 47h17l10 10v22a2 2 0 0 1-2 2H42a2 2 0 0 1-2-2V49a2 2 0 0 1 2-2z"
+        fill="none" stroke="#f2f5fa" stroke-width="2.8" stroke-linejoin="round"/>
+  <path d="M59 47v10h10" fill="none" stroke="#f2f5fa" stroke-width="2.8" stroke-linejoin="round"/>
+  <path d="M48 68l4.4 4.4 9.6-9.6" fill="none" stroke="#c9a44c" stroke-width="3.2"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- wordmark -->
+  <text x="108" y="82" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif"
+        font-size="42" font-weight="600" letter-spacing="-1.3" fill="#f2f5fa">Casefile</text>
+  <rect x="110" y="92" width="168" height="3" rx="1.5" fill="#c9a44c"/>
+  <text x="110" y="112" font-family="ui-monospace,SFMono-Regular,Menlo,monospace"
+        font-size="11" letter-spacing="2.6" fill="#7d8a9c">ALERT REVIEW</text>
+</svg>
