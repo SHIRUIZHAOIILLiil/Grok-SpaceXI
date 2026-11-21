@@ -27,6 +27,11 @@ DATA = os.path.join(ROOT, "data", "institutions")
 OUTPUT = os.path.join(ROOT, "output")
 
 DDL = [
+    "drop table if exists citations",
+    "drop table if exists alerts",
+    "drop table if exists documents",
+    "drop table if exists transactions",
+    "drop table if exists cases",
     """create table if not exists cases (
          case_id text primary key, institution text, customer_id text, customer_name text,
          kind text, verdict text, reason_code text, reason text,
@@ -34,15 +39,17 @@ DDL = [
     """create table if not exists alerts (
          alert_id text primary key, case_id text, rule_id text, rule_name text,
          message text, measured jsonb)""",
-    """create table if not exists documents (
-         doc_id text primary key, institution text, customer_id text, type text,
-         title text, dated text)""",
+    # document ids repeat across institutions (BKG-3143 exists in more than one
+    # folder), so the key is the pair
+    """create table documents (
+         doc_id text, institution text, customer_id text, type text,
+         title text, dated text, primary key (institution, doc_id))""",
     """create table if not exists transactions (
          transaction_id text primary key, customer_id text, booked_at text, direction text,
          channel text, amount_gbp double precision, counterparty_name text,
          counterparty_country text)""",
-    """create table if not exists citations (
-         case_id text, evidence_id text, kind text)""",
+    """create table citations (
+         case_id text, institution text, evidence_id text, kind text)""",
     "create index if not exists ix_alerts_case on alerts(case_id)",
     "create index if not exists ix_cit_case on citations(case_id)",
     "create index if not exists ix_doc_cust on documents(customer_id)",
@@ -127,9 +134,19 @@ def collect():
             for ev in decided.get("evidence") or []:
                 kind = ("document" if ev in doc_ids else "transaction" if ev in tx_ids
                         else "list_entry" if ev in list_ids else "other")
-                tables["citations"].append([decided["case_id"], ev, kind])
+                tables["citations"].append([decided["case_id"], inst, ev, kind])
     return tables
 
+
+KEYS = {
+    "cases": ["case_id", "institution", "customer_id", "customer_name", "kind", "verdict",
+              "reason_code", "reason", "review_from", "review_to"],
+    "alerts": ["alert_id", "case_id", "rule_id", "rule_name", "message", "measured"],
+    "documents": ["doc_id", "institution", "customer_id", "type", "title", "dated"],
+    "transactions": ["transaction_id", "customer_id", "booked_at", "direction", "channel",
+                     "amount_gbp", "counterparty_name", "counterparty_country"],
+    "citations": ["case_id", "institution", "evidence_id", "kind"],
+}
 
 SHAPES = {
     "cases": "case_id text, institution text, customer_id text, customer_name text, kind text, "
@@ -139,7 +156,7 @@ SHAPES = {
     "transactions": "transaction_id text, customer_id text, booked_at text, direction text, "
                     "channel text, amount_gbp double precision, counterparty_name text, "
                     "counterparty_country text",
-    "citations": "case_id text, evidence_id text, kind text",
+    "citations": "case_id text, institution text, evidence_id text, kind text",
 }
 
 
@@ -150,13 +167,22 @@ def load():
         print("  ddl ok:", statement.split("\n")[0][:58])
     tables = collect()
     for name in ["citations", "alerts", "documents", "transactions", "cases"]:
-        payload = json.dumps(tables[name])
         query("delete from %s" % name, dsn=dsn)
-        if not payload or payload == "[]":
+        if not tables[name]:
             print("  %-12s 0 rows" % name)
             continue
-        query("insert into %s select * from jsonb_to_recordset($1::jsonb) as t(%s)"
-              % (name, SHAPES[name]), [payload], dsn=dsn)
+        keys = KEYS[name]
+        batch = 3000
+        for start in range(0, len(tables[name]), batch):
+            chunk = [dict(zip(keys, row)) for row in tables[name][start:start + batch]]
+            # The HTTP API cannot type a parameter as jsonb, so the batch is
+            # inlined as a dollar-quoted literal instead of a bound parameter.
+            payload = json.dumps(chunk)
+            tag = "$j$"
+            while tag in payload:
+                tag = "$j%d$" % (len(tag) + 1)
+            query("insert into %s select * from jsonb_to_recordset(%s%s%s::jsonb) as t(%s)"
+                  % (name, tag, payload, tag, SHAPES[name]), dsn=dsn)
         print("  %-12s %d rows" % (name, len(tables[name])))
     result = query("select count(*)::int as n from cases", dsn=dsn)
     print("cases in neon:", result["rows"][0]["n"])
@@ -189,12 +215,19 @@ def main():
     if args.cmd == "why":
         show(query("select verdict, reason_code, reason from cases where case_id = $1", [args.arg]))
         show(query("select rule_id, message from alerts where case_id = $1 order by rule_id", [args.arg]))
-        show(query("""select c.evidence_id, d.type, d.title from citations c
-                      left join documents d on d.doc_id = c.evidence_id
+        show(query("""select c.evidence_id, coalesce(d.type, t.direction) as kind,
+                             coalesce(d.title, t.counterparty_name) as detail,
+                             t.amount_gbp
+                      from citations c
+                      left join documents d
+                        on d.doc_id = c.evidence_id and d.institution = c.institution
+                      left join transactions t on t.transaction_id = c.evidence_id
                       where c.case_id = $1 order by c.evidence_id""", [args.arg]))
     elif args.cmd == "docs":
         show(query("""select coalesce(d.type, c.kind) as kind, count(*)::int as cited
-                      from citations c left join documents d on d.doc_id = c.evidence_id
+                      from citations c
+                      left join documents d
+                        on d.doc_id = c.evidence_id and d.institution = c.institution
                       group by 1 order by cited desc limit 12"""))
     elif args.cmd == "rules":
         show(query("""select a.rule_id,
