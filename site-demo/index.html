@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Track 1 · Alert review console</title>
+<style>
+:root{
+  --bg:#0a0e13; --panel:#111823; --panel2:#0d141c; --line:#1e2a37;
+  --txt:#e6edf3; --dim:#8b9bad; --acc:#4c8dff;
+  --close:#3fb950; --rfi:#d29922; --esc:#f85149;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--txt);font:13px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+header{flex:none}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+header{padding:12px 16px 0;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0e151d,#0a0e13)}
+.htop{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+h1{font-size:15px;margin:0;letter-spacing:.2px}
+.htop .sub{color:var(--dim);font-size:12px}
+.facts{margin-left:auto;color:var(--dim);font-size:11.5px}
+.facts b{color:var(--txt);font-weight:600}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0 12px}
+.mcard{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:8px 10px;cursor:pointer;transition:border-color .12s;min-width:0}
+.mcard:hover{border-color:#2c3f56}
+.mcard.on{border-color:var(--acc);box-shadow:0 0 0 1px rgba(76,141,255,.25)}
+.mcard .name{font-size:12px;font-weight:600;display:flex;justify-content:space-between;gap:6px}
+.mcard .name span{color:var(--dim);font-weight:400;font-size:11px}
+.mcard .sub2{color:var(--dim);font-size:10.5px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{display:flex;height:6px;border-radius:3px;overflow:hidden;background:#1b2431;margin:7px 0 5px}
+.bar i{display:block;height:100%}
+.mcard .nums{display:flex;gap:8px;font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden}
+.mcard .nums b{color:var(--txt);font-weight:600}
+.mcard .nums .r{flex:1 1 auto;text-align:right}
+.toolbar{display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid var(--line);background:var(--panel2);flex-wrap:wrap;flex:none}
+.tabs{display:flex;gap:2px;background:#0a1119;border:1px solid var(--line);border-radius:7px;padding:2px}
+.tab{padding:5px 11px;border-radius:5px;color:var(--dim);font-size:12px}
+.tab.on{background:#1b2a3d;color:#cfe2ff;box-shadow:inset 0 0 0 1px #2d4666}
+input[type=search]{background:#0a1119;border:1px solid var(--line);border-radius:6px;color:var(--txt);padding:6px 9px;width:230px;font:inherit;font-size:12px}
+input[type=search]:focus{outline:none;border-color:var(--acc)}
+.chips{display:flex;gap:4px;margin-left:auto}
+.chip{padding:4px 9px;border-radius:5px;border:1px solid var(--line);color:var(--dim);font-size:11.5px}
+.chip.on{background:#1b2a3d;color:#cfe2ff;border-color:#2d4666}
+.chip .n{color:var(--dim);margin-left:4px;font-size:10.5px}
+main{display:grid;grid-template-columns:352px minmax(0,1fr);flex:1 1 auto;min-height:0}
+.list{overflow:auto;border-right:1px solid var(--line);background:var(--panel2)}
+.row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:7px 12px;border-bottom:1px solid #131d28;cursor:pointer}
+.row:hover{background:#131e2a}
+.row.on{background:#16243a;box-shadow:inset 2px 0 0 var(--acc)}
+.row .id{font-size:11.5px;color:#b9c8d8}
+.row .who{font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .rt{font-size:10px;color:#6f819a;letter-spacing:.2px}
+.badge{font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 6px;border-radius:4px;white-space:nowrap;align-self:center}
+.b-CLOSE{color:var(--close);background:rgba(63,185,80,.13);border:1px solid rgba(63,185,80,.35)}
+.b-RFI{color:var(--rfi);background:rgba(210,153,34,.13);border:1px solid rgba(210,153,34,.35)}
+.b-ESCALATE{color:var(--esc);background:rgba(248,81,73,.13);border:1px solid rgba(248,81,73,.35)}
+.b-MISSING{color:var(--dim);background:#16202b;border:1px solid var(--line)}
+.detail{overflow:auto;padding:14px 18px 60px}
+.casehead{position:sticky;top:-14px;z-index:5;background:linear-gradient(180deg,#0a0e13 78%,rgba(10,14,19,.86));padding:10px 0 8px;margin:-10px 0 0;border-bottom:1px solid var(--line)}
+.ch-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ch-id{font-size:15px;font-weight:600}
+.ch-who{color:#c2d0de;font-size:12.5px}
+.ch-win{color:var(--dim);font-size:11.5px}
+.ch-verdict{margin-left:auto;display:flex;align-items:center;gap:8px}
+.code{font-size:11px;color:#cdd9e5;background:#16202b;border:1px solid var(--line);border-radius:4px;padding:2px 6px}
+.chain{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;color:var(--dim);flex-wrap:wrap}
+.chain b{color:#cfe2ff;background:#16243a;border:1px solid #24374d;border-radius:4px;padding:1px 6px;font-weight:600}
+.chain .arr{color:#3f5a78}
+section{margin-top:16px}
+.sechead{display:flex;align-items:baseline;gap:8px;margin-bottom:7px}
+.sechead .n{width:18px;height:18px;border-radius:50%;background:#1b2a3d;color:#9ec1ff;font-size:10.5px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #2d4666;flex:none}
+.sechead h2{font-size:12px;margin:0;text-transform:uppercase;letter-spacing:.7px;color:#a9bacd;font-weight:600}
+.sechead .hint{color:#6f819a;font-size:11px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:10px 12px;margin-bottom:8px}
+.alert .ahead{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.rule{font-size:10.5px;font-weight:700;color:#9ec1ff;background:#16243a;border:1px solid #24374d;border-radius:4px;padding:1px 5px;letter-spacing:.4px}
+.rname{color:#c2d0de;font-size:12px}
+.amsg{margin:6px 0 7px;color:#dbe5ee;font-size:12.5px}
+.measured{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 10px;border-top:1px dashed #1c2836;padding-top:6px}
+.m{display:flex;justify-content:space-between;gap:8px;font-size:11px}
+.m span{color:#7d90a6}
+.m b{font-weight:600;color:#cfdbe7}
+.m.wide{grid-column:1/-1;flex-direction:column;gap:1px}
+.m.wide b{color:#dbe5ee;line-height:1.45}
+.heldtag{font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#e3b341;border:1px solid rgba(210,153,34,.45);background:rgba(210,153,34,.12);border-radius:3px;padding:0 4px;vertical-align:1px}
+.kindtag{font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;color:#8fa3b8;border:1px solid #24374d;border-radius:3px;padding:1px 4px;margin-left:5px}
+.kv{display:grid;grid-template-columns:132px 1fr;gap:3px 10px;font-size:12px}
+.kv dt{color:#7d90a6}
+.kv dd{margin:0;color:#dbe5ee}
+.subhead{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:#6f819a;margin:9px 0 5px}
+table.tx{width:100%;border-collapse:collapse;font-size:11.5px}
+table.tx th{text-align:left;color:#7d90a6;font-weight:500;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--line);padding:4px 6px;position:sticky;top:0;background:var(--panel)}
+table.tx td{padding:4px 6px;border-bottom:1px solid #131d28;vertical-align:top}
+table.tx tr.hit td{background:rgba(76,141,255,.09)}
+table.tx td.amt{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.in{color:var(--close)} .out{color:#e3989a}
+.txwrap{max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:7px;background:var(--panel)}
+.doc{border:1px solid var(--line);border-radius:7px;background:var(--panel);margin-bottom:6px;overflow:hidden}
+.doc.cited{border-color:#4176b4;background:#101d2b;box-shadow:inset 3px 0 0 #4c8dff}
+.doc.open{border-color:#2d4666}
+.dhead{display:flex;gap:9px;align-items:flex-start;padding:8px 11px;cursor:pointer}
+.dhead:hover{background:#131e2a}
+.dtype{font-size:9.5px;color:#9ec1ff;background:#16243a;border:1px solid #24374d;border-radius:3px;padding:2px 5px;white-space:nowrap;letter-spacing:.3px}
+.dtitle{font-size:12px;color:#dbe5ee}
+.dmeta{color:#7d90a6;font-size:10.5px;margin-top:1px}
+.citedtag{font-size:9.5px;color:#8ec1ff;border:1px solid #2f4d70;border-radius:3px;padding:1px 4px;margin-left:6px;white-space:nowrap}
+.chev{margin-left:auto;color:#5f7286;font-size:11px;padding-top:2px}
+.dbody{display:none;border-top:1px solid var(--line);padding:9px 12px;background:#0b1219}
+.doc.open .dbody{display:block}
+.docmd{font-size:12px;color:#cfdbe7}
+.docmd p{margin:0 0 5px}
+.docmd h4{margin:0 0 6px;font-size:12px;color:#eaf2fa}
+.docmd table{border-collapse:collapse;width:100%;margin:4px 0 6px;font-size:11.5px}
+.docmd th,.docmd td{border:1px solid #1e2a37;padding:3px 6px;text-align:left}
+.docmd th{color:#8fa3b8;font-weight:500}
+.decision{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:12px 14px}
+.decision.v-CLOSE{border-color:rgba(63,185,80,.4);background:linear-gradient(180deg,rgba(63,185,80,.07),var(--panel) 55%)}
+.decision.v-RFI{border-color:rgba(210,153,34,.4);background:linear-gradient(180deg,rgba(210,153,34,.07),var(--panel) 55%)}
+.decision.v-ESCALATE{border-color:rgba(248,81,73,.4);background:linear-gradient(180deg,rgba(248,81,73,.07),var(--panel) 55%)}
+.dtop{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.vbig{font-size:15px;font-weight:700;letter-spacing:.5px}
+.v-CLOSE .vbig{color:var(--close)} .v-RFI .vbig{color:var(--rfi)} .v-ESCALATE .vbig{color:var(--esc)}
+.reason{margin:9px 0 0;color:#dfe8f1;font-size:13px;line-height:1.62}
+mark.evref{background:rgba(76,141,255,.22);color:#cfe2ff;border-bottom:1px solid #4c8dff;padding:0 1px;border-radius:2px;cursor:pointer}
+.evlist{margin-top:9px;display:flex;gap:5px;flex-wrap:wrap;border-top:1px dashed #1c2836;padding-top:8px;align-items:center}
+.evlist .lab{font-size:10.5px;color:#7d90a6;text-transform:uppercase;letter-spacing:.5px;margin-right:2px}
+.evc{font-size:10.5px;border-radius:4px;padding:2px 6px;border:1px solid #2f4d70;background:#16243a;color:#a9cdf5;cursor:pointer}
+.evc.doc{background:#172a1c;border-color:#2f5b36;color:#9ad6a5}
+.evc.tx{background:#16243a;border-color:#2f4d70;color:#a9cdf5}
+.evc:hover{filter:brightness(1.35)}
+.emptynote{color:#7d90a6;font-size:12px;padding:12px;border:1px dashed var(--line);border-radius:7px}
+details.raw{margin-top:10px}
+details.raw summary{color:#7d90a6;font-size:11px;cursor:pointer}
+pre.rawjson{margin:6px 0 0;background:#0a1119;border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:11px;color:#b9c8d8;white-space:pre-wrap;word-break:break-all}
+.flash{animation:fl 1.2s ease-out}
+@keyframes fl{0%{box-shadow:0 0 0 2px #4c8dff}100%{box-shadow:0 0 0 0 rgba(76,141,255,0)}}
+.revs{font-size:11.5px;color:#8b9bad}
+.revs div{padding:3px 0;border-bottom:1px solid #131d28;display:flex;gap:8px}
+.revs .rv{color:#9ad6a5}
+@media (max-width:1180px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.mcard .sub2{display:none}}
+@media (max-height:640px){body{overflow:auto}main{min-height:520px}}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#233141;border-radius:5px}
+::-webkit-scrollbar-track{background:transparent}
+</style>
+</head>
+<body>
+<div style="position:fixed;left:0;right:0;bottom:0;z-index:99;background:#1b2233;border-top:1px solid #2c3550;color:#c8d3ee;font:12px/1.5 ui-sans-serif,system-ui;padding:7px 14px;text-align:center">Demo subset &middot; a sample of cases per institution, published for review. The full console runs locally over all 4,000 cases.</div>
+<header>
+  <div class="htop">
+    <h1>Track 1 · Suspicious payment alert review</h1>
+    <span class="sub">alert → evidence → verdict → reason, every claim clickable</span>
+    <span class="facts" id="facts"></span>
+  </div>
+  <div class="metrics" id="metrics"></div>
+</header>
+<div class="toolbar">
+  <div class="tabs" id="tabs"></div>
+  <input id="q" type="search" placeholder="Search case ID or customer…" autocomplete="off" spellcheck="false">
+  <div class="chips" id="chips"></div>
+</div>
+<main>
+  <div class="list" id="list"><div class="emptynote" style="margin:10px">Loading…</div></div>
+  <div class="detail" id="detail"><div class="emptynote">Pick a case.</div></div>
+</main>
+
+<script>
+/* static-export shim: same /api shapes, served from json files */
+(function(){
+  var orig = window.fetch.bind(window), cache = {};
+  function inst(id){
+    if (!cache[id]) cache[id] = orig('data/' + id + '.json').then(function(r){ return r.json(); });
+    return cache[id];
+  }
+  function pack(obj){
+    return Promise.resolve(new Response(JSON.stringify(obj), {status:200, headers:{'Content-Type':'application/json'}}));
+  }
+  window.fetch = function(url, opts){
+    var u = String(url);
+    if (u.indexOf('/api/summary') === 0) return orig('data/summary.json', opts);
+    var m1 = u.match(/\/api\/cases\?inst=([a-z_]+)/);
+    if (m1) return inst(m1[1]).then(function(d){ return pack({institution:m1[1], cases:d.rows}); });
+    var m2 = u.match(/\/api\/case\?inst=([a-z_]+)&case_id=([^&]+)/);
+    if (m2) return inst(m2[1]).then(function(d){
+      var hit = d.details[m2[2]];
+      if (!hit) { var first = d.rows[0]; hit = first ? d.details[first.case_id] : null; }
+      return pack(hit || {error:'unknown case_id'});
+    });
+    return orig(url, opts);
+  };
+})();
+</script>
+<script>
+const INSTS = ["bank","payments_fx","emoney","investment"];
+const state = {inst:"bank", cases:[], filter:"ALL", q:"", caseId:null, summary:null, detail:null};
+
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = v => "£" + Number(v||0).toLocaleString("en-GB",{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct = v => (v*100).toFixed(1) + "%";
+
+function jsonFetch(url){ return fetch(url).then(r => r.json()); }
+
+function fmtLabel(k){
+  let t = k.replace(/_gbp$/,"").replace(/_/g," ");
+  if (t === "distinct counterparties") return "distinct parties";
+  if (t === "window days") return "window (days)";
+  return t;
+}
+function fmtVal(k, v){
+  if (typeof v === "number"){
+    if (/_gbp$/.test(k) || (k === "limit" && v >= 100)) return money(v);
+    return String(v);
+  }
+  if (typeof v === "boolean") return v ? "yes" : "no";
+  if (v === null || v === "") return "—";
+  return String(v);
+}
+
+/* ---------- metrics ---------- */
+function renderMetrics(){
+  const s = state.summary;
+  if (!s) return;
+  const t = s.totals;
+  document.getElementById("facts").innerHTML =
+    "<b>" + t.cases.toLocaleString() + "</b> cases · <b>" + t.alerts.toLocaleString() +
+    "</b> alerts · <b>" + t.docs.toLocaleString() + "</b> evidence documents · 4 institutions";
+  const cards = s.institutions.map(inst => {
+    const n = inst.cases || 1;
+    const seg = k => (inst.verdicts[k]||0) / n * 100;
+    const ms = inst.ms_per_case == null ? "—" : inst.ms_per_case.toFixed(2) + " ms";
+    return '<div class="mcard' + (inst.id===state.inst?' on':'') + '" data-inst="' + inst.id + '">' +
+      '<div class="name">' + esc(inst.label) + '<span>' + inst.cases.toLocaleString() + ' cases</span></div>' +
+      '<div class="sub2">' + esc(inst.subtitle) + '</div>' +
+      '<div class="bar"><i style="width:' + seg("CLOSE") + '%;background:var(--close)"></i>' +
+        '<i style="width:' + seg("RFI") + '%;background:var(--rfi)"></i>' +
+        '<i style="width:' + seg("ESCALATE") + '%;background:var(--esc)"></i></div>' +
+      '<div class="nums"><span><b>' + (inst.verdicts.CLOSE||0) + '</b> close</span>' +
+        '<span><b>' + (inst.verdicts.RFI||0) + '</b> rfi</span>' +
+        '<span><b>' + (inst.verdicts.ESCALATE||0) + '</b> esc</span></div>' +
+      '<div class="nums" style="margin-top:3px"><span>CLOSE rate <b>' + pct(inst.close_rate) + '</b></span>' +
+        '<span class="r"><b>' + ms + '</b>/case</span></div>' +
+      '</div>';
+  }).join("");
+  document.getElementById("metrics").innerHTML = cards;
+  document.querySelectorAll(".mcard").forEach(el => el.onclick = () => selectInst(el.dataset.inst));
+}
+
+/* ---------- tabs / list ---------- */
+function renderTabs(){
+  const s = state.summary; if (!s) return;
+  document.getElementById("tabs").innerHTML = s.institutions.map(i =>
+    '<button class="tab' + (i.id===state.inst?' on':'') + '" data-inst="' + i.id + '">' + esc(i.label) + '</button>'
+  ).join("");
+  document.querySelectorAll(".tab").forEach(b => b.onclick = () => selectInst(b.dataset.inst));
+}
+
+function renderChips(){
+  const counts = {ALL: state.cases.length, CLOSE:0, RFI:0, ESCALATE:0, MISSING:0};
+  state.cases.forEach(c => counts[c.verdict] = (counts[c.verdict]||0)+1);
+  const order = ["ALL","CLOSE","RFI","ESCALATE"];
+  document.getElementById("chips").innerHTML = order.map(k =>
+    '<button class="chip' + (state.filter===k?' on':'') + '" data-f="' + k + '">' +
+    (k==="ALL"?"All":k) + '<span class="n">' + (counts[k]||0).toLocaleString() + '</span></button>'
+  ).join("");
+  document.querySelectorAll(".chip").forEach(b => b.onclick = () => { state.filter = b.dataset.f; renderChips(); renderList(); });
+}
+
+function visible(){
+  const q = state.q.trim().toLowerCase();
+  return state.cases.filter(c => {
+    if (state.filter !== "ALL" && c.verdict !== state.filter) return false;
+    if (!q) return true;
+    return c.case_id.toLowerCase().includes(q) || (c.customer_name||"").toLowerCase().includes(q);
+  });
+}
+
+function renderList(){
+  const rows = visible();
+  const list = document.getElementById("list");
+  if (!rows.length){ list.innerHTML = '<div class="emptynote" style="margin:10px">No case matches.</div>'; return; }
+  list.innerHTML = rows.map(c =>
+    '<div class="row' + (c.case_id===state.caseId?' on':'') + '" data-id="' + esc(c.case_id) + '">' +
+      '<div class="id mono">' + esc(c.case_id) + (c.held?' <span class="heldtag" title="outgoing payment held pending this review">held</span>':'') + '</div>' +
+      '<div class="badge b-' + esc(c.verdict) + '">' + esc(c.verdict) + '</div>' +
+      '<div class="who">' + esc(c.customer_name) + '</div>' +
+      '<div class="rt">' + (c.rules||[]).join(" · ") + ' · ' + c.alerts + ' alert' + (c.alerts>1?'s':'') + '</div>' +
+    '</div>').join("");
+  list.querySelectorAll(".row").forEach(r => r.onclick = () => selectCase(r.dataset.id));
+}
+
+/* ---------- detail ---------- */
+function mdLite(text){
+  const lines = String(text||"").split("\n");
+  let out = [], table = null;
+  const closeTable = () => { if (table){ out.push("<table>" + table.join("") + "</table>"); table = null; } };
+  lines.forEach(raw => {
+    const line = raw.replace(/\r$/,"");
+    let s = esc(line);
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    if (/^\s*\|/.test(line)){
+      const cells = line.trim().replace(/^\|/,"").replace(/\|$/,"").split("|");
+      if (cells.every(c => /^\s*:?-{2,}:?\s*$/.test(c))) return;
+      const tag = (table && table.length) ? "td" : "th";
+      table = table || [];
+      table.push("<tr>" + cells.map(c => "<" + tag + ">" + esc(c.trim()).replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>") + "</" + tag + ">").join("") + "</tr>");
+      return;
+    }
+    closeTable();
+    const t = line.trim();
+    if (!t) return;
+    if (/^#{1,3}\s/.test(t)){ out.push("<h4>" + esc(t.replace(/^#{1,3}\s+/,"")) + "</h4>"); return; }
+    out.push("<p>" + s + "</p>");
+  });
+  closeTable();
+  return out.join("") || '<p style="color:#7d90a6">(empty document)</p>';
+}
+
+function docCard(d, cited){
+  const id = d.doc_id;
+  return '<div class="doc' + (cited?' cited':'') + '" id="ref-' + esc(id) + '" data-doc="' + esc(id) + '">' +
+    '<div class="dhead" data-toggle="1">' +
+      '<span class="dtype">' + esc((d.type||"").replace(/_/g," ")) + '</span>' +
+      '<div style="min-width:0"><div class="dtitle">' + esc(d.title) + (cited?'<span class="citedtag">cited</span>':'') + '</div>' +
+      '<div class="dmeta mono">' + esc(id) + ' · dated ' + esc(d.dated||"—") + '</div></div>' +
+      '<span class="chev">&#9662;</span></div>' +
+    '<div class="dbody"><div class="docmd">' + mdLite(d.text) + '</div></div></div>';
+}
+
+function renderDetail(){
+  const d = state.detail;
+  if (!d) return;
+  const c = d.case, cust = d.customer || {}, dec = d.decision || {}, alerts = d.alerts || [];
+  const evIds = dec.evidence || [];
+  const docIds = new Set((d.documents||[]).map(x => x.doc_id));
+  const txIds = new Set((d.transactions||[]).map(x => x.transaction_id));
+  const citedDocs = evIds.filter(x => docIds.has(x));
+  const citedTx = evIds.filter(x => txIds.has(x));
+  const kind = cust.kind || "";
+  const isBiz = kind !== "individual";
+  const nameRow = isBiz
+    ? '<dt>Legal name</dt><dd>' + esc(cust.name) + ' <span class="kindtag">' + esc(kind) + '</span></dd>' +
+      '<dt>Company number</dt><dd class="mono">' + esc(cust.company_number||"—") + '</dd>' +
+      '<dt>Incorporated</dt><dd>' + esc(cust.incorporated_on||"—") + '</dd>' +
+      '<dt>Business activity</dt><dd>' + esc(cust.business_activity||"—") + '</dd>'
+    : '<dt>Name</dt><dd>' + esc(cust.name) + ' <span class="kindtag">' + esc(kind) + '</span></dd>' +
+      '<dt>Date of birth</dt><dd>' + esc(cust.date_of_birth||"—") + '</dd>' +
+      '<dt>Occupation</dt><dd>' + esc(cust.occupation||"—") + '</dd>' +
+      '<dt>Employer</dt><dd>' + esc(cust.employer||"—") + '</dd>';
+  const decl = cust.declared || {};
+  const declRows = Object.keys(decl).map(k => {
+    let v = decl[k];
+    if (Array.isArray(v)) v = v.join(", ");
+    else if (typeof v === "number" && /_gbp$/.test(k)) v = money(v);
+    return '<dt>' + esc(k.replace(/_gbp$/,"").replace(/_/g," ")) + '</dt><dd>' + esc(v==null?"—":v) + '</dd>';
+  }).join("");
+
+  const alertHtml = alerts.map(a => {
+    const measured = Object.keys(a.measured||{}).map(k => {
+      const shown = fmtVal(k, a.measured[k]);
+      const wide = String(shown).length > 30 ? ' wide' : '';
+      return '<div class="m' + wide + '"><span>' + esc(fmtLabel(k)) + '</span><b>' + esc(shown) + '</b></div>';
+    }).join("");
+    return '<div class="card alert">' +
+      '<div class="ahead"><span class="rule">' + esc(a.rule_id) + '</span>' +
+      '<span class="rname">' + esc(a.rule_name) + '</span>' +
+      '<span class="code mono" style="margin-left:auto">' + esc(a.alert_id) + '</span></div>' +
+      '<div class="amsg">' + esc(a.message) + '</div>' +
+      (measured ? '<div class="measured">' + measured + '</div>' : '') +
+      ((a.transaction_ids||[]).length ? '<div class="dmeta mono" style="margin-top:6px">fired on ' + (a.transaction_ids||[]).map(esc).join(" · ") + '</div>' : '') +
+      '</div>';
+  }).join("") || '<div class="emptynote">No alert rows attached to this case.</div>';
+
+  const txRows = (d.transactions||[]).map(t => {
+    const hit = alerts.some(a => (a.transaction_ids||[]).includes(t.transaction_id)) || evIds.includes(t.transaction_id);
+    return '<tr class="' + (hit?'hit':'') + '" id="ref-' + esc(t.transaction_id) + '">' +
+      '<td class="mono">' + esc((t.booked_at||"").slice(0,10)) + '</td>' +
+      '<td class="' + (t.direction==="in"?"in":"out") + '">' + esc(t.direction) + '</td>' +
+      '<td class="amt">' + money(t.amount_gbp) + '</td>' +
+      '<td>' + esc(t.counterparty_name||"—") + '</td>' +
+      '<td>' + esc(t.channel||"") + '</td>' +
+      '<td>' + esc(t.counterparty_country||"") + '</td>' +
+      '<td class="mono" style="color:#6f819a">' + esc(t.reference||"") + '</td></tr>';
+  }).join("");
+
+  const docsHtml = (d.documents||[]).map(x => docCard(x, citedDocs.includes(x.doc_id))).join("")
+    || '<div class="emptynote">No documents on file for this customer.</div>';
+
+  let reason = esc(dec.reason || "");
+  evIds.forEach(id => { reason = reason.split(esc(id)).join('<mark class="evref" data-id="' + esc(id) + '">' + esc(id) + '</mark>'); });
+
+  const evChips = evIds.map(id => {
+    const cls = docIds.has(id) ? "doc" : (txIds.has(id) ? "tx" : "");
+    const lab = docIds.has(id) ? "document" : (txIds.has(id) ? "transaction" : "id not in case files");
+    return '<span class="evc ' + cls + '" data-id="' + esc(id) + '" title="' + lab + '">' + esc(id) + '</span>';
+  }).join("") || '<span style="color:#7d90a6;font-size:11px">none</span>';
+
+  const revs = d.previous_reviews || [];
+  const revHtml = revs.length ? '<div class="subhead">Earlier reviews (context only — they do not explain new activity)</div>' +
+    '<div class="revs">' + revs.slice(0,6).map(r =>
+      '<div><span class="mono" style="color:#7d90a6">' + esc(r.reviewed_on) + '</span>' +
+      '<span class="rv">' + esc(r.verdict) + '</span>' +
+      '<span>' + esc(r.note||"") + '</span></div>').join("") + '</div>' : "";
+
+  const verdict = dec.verdict || "MISSING";
+  const html =
+    '<div class="casehead"><div class="ch-top">' +
+      '<span class="ch-id mono">' + esc(c.case_id) + '</span>' +
+      '<span class="ch-who">' + esc(cust.name||"—") + '</span>' +
+      '<span class="ch-win">window ' + esc((c.review_window||{}).from||"?") + ' → ' + esc((c.review_window||{}).to||"?") +
+        ' · opened ' + esc((c.opened_at||"").slice(0,10)) + '</span>' +
+      '<span class="ch-verdict"><span class="badge b-' + esc(verdict) + '">' + esc(verdict) + '</span>' +
+        '<span class="code mono">' + esc(dec.reason_code||"no decision line") + '</span></span>' +
+    '</div>' +
+    '<div class="chain">' +
+      '<b>' + alerts.length + '</b> alert' + (alerts.length===1?'':'s') + ' <span class="arr">→</span> ' +
+      '<b>' + (d.window_tx_count||0) + '</b> transactions in window <span class="arr">→</span> ' +
+      '<b>' + (d.documents||[]).length + '</b> documents on file <span class="arr">→</span> ' +
+      '<b>' + evIds.length + '</b> evidence ID' + (evIds.length===1?'':'s') + ' cited <span class="arr">→</span> verdict <b>' + esc(verdict) + '</b>' +
+    '</div></div>' +
+
+    '<section><div class="sechead"><span class="n">1</span><h2>Alerts raised</h2>' +
+      '<span class="hint">what the monitoring rules measured</span></div>' + alertHtml + '</section>' +
+
+    '<section><div class="sechead"><span class="n">2</span><h2>Customer profile</h2>' +
+      '<span class="hint">declared at onboarding — the baseline the alert is measured against</span></div>' +
+      '<div class="card"><dl class="kv">' + nameRow +
+      '<dt>Risk rating</dt><dd>' + esc(cust.risk_rating||"—") + '</dd>' +
+      '<dt>Onboarded</dt><dd>' + esc(cust.onboarded_on||"—") + '</dd>' +
+      '<dt>Address</dt><dd>' + esc(cust.address||"—") + '</dd>' +
+      '</dl><div class="subhead">Declared profile</div><dl class="kv">' + (declRows||'<dd>—</dd>') + '</dl></div>' +
+      revHtml + '</section>' +
+
+    '<section><div class="sechead"><span class="n">3</span><h2>Transactions in the review window</h2>' +
+      '<span class="hint">' + (d.window_tx_count||0) + ' rows · rows touched by an alert are highlighted</span></div>' +
+      (txRows ? '<div class="txwrap"><table class="tx"><thead><tr><th>Date</th><th>Dir</th><th style="text-align:right">Amount</th><th>Counterparty</th><th>Channel</th><th>Country</th><th>Reference</th></tr></thead><tbody>' + txRows + '</tbody></table></div>'
+              : '<div class="emptynote">No transactions book in this window.</div>') +
+      '</section>' +
+
+    '<section><div class="sechead"><span class="n">4</span><h2>Evidence documents</h2>' +
+      '<span class="hint">' + (d.documents||[]).length + ' on file · ' + citedDocs.length + ' cited by the decision · click a title to read it</span></div>' +
+      docsHtml + '</section>' +
+
+    '<section><div class="sechead"><span class="n">5</span><h2>Verdict and reason</h2>' +
+      '<span class="hint">generated by system/run — one verdict settles every alert in the case</span></div>' +
+      '<div class="decision v-' + esc(verdict) + '">' +
+        '<div class="dtop"><span class="vbig">' + esc(verdict) + '</span>' +
+        '<span class="code mono">' + esc(dec.reason_code||"—") + '</span>' +
+        '<span style="margin-left:auto;color:#7d90a6;font-size:11px">' + evIds.length + ' cited: ' +
+          citedDocs.length + (citedDocs.length===1?' document':' documents') + ', ' +
+          citedTx.length + (citedTx.length===1?' transaction':' transactions') + '</span></div>' +
+        '<p class="reason">' + (reason || '<span style="color:#7d90a6">No decision line for this case in output/.</span>') + '</p>' +
+        '<div class="evlist"><span class="lab">Evidence</span>' + evChips + '</div>' +
+        '<details class="raw"><summary>output line (contract shape)</summary><pre class="rawjson mono">' +
+          esc(JSON.stringify(dec, null, 2)) + '</pre></details>' +
+      '</div></section>';
+
+  document.getElementById("detail").innerHTML = html;
+  document.getElementById("detail").scrollTop = 0;
+  document.querySelectorAll("#detail .dhead").forEach(h => h.onclick = () => h.parentElement.classList.toggle("open"));
+  document.querySelectorAll("#detail .evc, #detail .evref").forEach(el => el.onclick = () => jumpTo(el.dataset.id));
+}
+
+function jumpTo(id){
+  const el = document.getElementById("ref-" + id);
+  if (!el) return;
+  if (el.classList.contains("doc")) el.classList.add("open");
+  el.scrollIntoView({block:"center", behavior:"smooth"});
+  el.classList.remove("flash");
+  void el.offsetWidth;
+  el.classList.add("flash");
+}
+
+/* ---------- flow ---------- */
+function loadCases(inst, after){
+  jsonFetch("/api/cases?inst=" + encodeURIComponent(inst)).then(d => {
+    state.cases = d.cases || [];
+    renderChips();
+    if (after) after();
+  });
+}
+
+function selectInst(inst){
+  state.inst = inst;
+  state.filter = "ALL";
+  state.q = "";
+  document.getElementById("q").value = "";
+  renderMetrics(); renderTabs();
+  loadCases(inst, () => {
+    const first = visible()[0];
+    if (first) selectCase(first.case_id, true); else renderList();
+  });
+}
+
+function selectCase(id, fromList){
+  state.caseId = id;
+  renderList();
+  const row = document.querySelector('#list .row[data-id="' + id + '"]');
+  if (row && fromList) row.scrollIntoView({block:"nearest"});
+  location.hash = state.inst + "/" + id;
+  jsonFetch("/api/case?inst=" + encodeURIComponent(state.inst) + "&case_id=" + encodeURIComponent(id))
+    .then(d => {
+      if (d.error){ document.getElementById("detail").innerHTML = '<div class="emptynote">' + esc(d.error) + '</div>'; return; }
+      state.detail = d;
+      renderDetail();
+    });
+}
+
+document.getElementById("q").addEventListener("input", e => { state.q = e.target.value; renderList(); });
+document.getElementById("q").addEventListener("keydown", e => {
+  if (e.key === "Enter"){ const first = visible()[0]; if (first) selectCase(first.case_id, true); }
+  if (e.key === "Escape"){ e.target.value = ""; state.q = ""; renderList(); }
+});
+
+jsonFetch("/api/summary").then(s => {
+  state.summary = s;
+  const h = (location.hash||"").replace(/^#/,"");
+  const parts = h.split("/");
+  if (INSTS.includes(parts[0])) state.inst = parts[0];
+  renderMetrics(); renderTabs();
+  loadCases(state.inst, () => {
+    if (parts[1]) selectCase(parts[1]);
+    else { const first = visible()[0]; if (first) selectCase(first.case_id, true); }
+  });
+});
+</script>
+</body>
+</html>

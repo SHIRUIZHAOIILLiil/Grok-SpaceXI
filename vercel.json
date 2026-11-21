@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "framework": null,
+  "outputDirectory": "site-demo",
+  "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/data/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=600" }]
+    }
+  ]
+}

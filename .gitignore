@@ -11,3 +11,6 @@ __pycache__/
 *.pyc
 .DS_Store
 scratch/
+
+# local full-data export (40 MB, never committed)
+site/
