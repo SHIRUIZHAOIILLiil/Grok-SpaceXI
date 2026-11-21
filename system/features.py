@@ -18,6 +18,7 @@ import os
 import re
 
 import evidence
+import extract
 
 _LOADED = {}
 _LIST = {}
@@ -203,6 +204,12 @@ def _subjects(customer, docs, tx_names):
         # A document that names a person and states a date of birth (gift letter,
         # loan agreement, letter from the customer) identifies that person.
         dob = evidence.parse_dob(text)
+        if not dob and doc.get("type") == "gift_letter":
+            # A gift letter names the giver and states their date of birth in
+            # prose ("I, X, born 10 July 1997, confirm ..."), which the local
+            # pattern misses. The model may only supply a verbatim quote, and the
+            # quote is parsed here, so a wrong answer changes nothing.
+            dob = extract.date_of_birth(text)
         if dob:
             m = re.search(r"\bI,\s*([A-Z][^,\n]{2,60}),", text)
             name = m.group(1).strip() if m else None
