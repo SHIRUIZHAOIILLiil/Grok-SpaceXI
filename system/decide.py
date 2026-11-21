@@ -31,6 +31,7 @@ _PARTY_TO = re.compile(r"to ([A-Z][A-Za-z&.'\- ]{2,60}?) on \d{1,2} (?:%s)" % _M
 _PARTY_FROM = re.compile(r"from ([A-Z][A-Za-z&.'\- ]{2,60}?)(?: on| paid)")
 _ENTRY = re.compile(r"internal list entry (\S+) on ([^.]+)\.")
 _PAID_TO = re.compile(r"(?:payment of|paid out to) £([\d,]+\.\d{2}) to ([A-Z][^,]+?)(?: on|,)")
+_PARTY_PAID = re.compile(r"^([A-Z][A-Za-z&.'\- ]{2,60}?) paid £")
 
 _STOP = set("""a an the and or of for to from by with at in on as is are was were be
 this that these those uk ltd limited co company plc llp inc its it their our our
@@ -40,6 +41,18 @@ invoice total amount due please thank you dear sir madam regards best kind team
 we i my me your our they them his her""".split())
 
 _AMT = re.compile(r"£\s?([\d,]+\.\d{2})")
+
+
+def _clean(text):
+    """Remove full stops from a fragment so it cannot break sentence splitting."""
+    return re.sub(r"\s+", " ", re.sub(r"\.", "", text or "")).strip()
+
+
+def _title(doc):
+    """Document title with internal full stops removed, so it cannot break a sentence."""
+    text = (doc.get("title") or "document").strip()
+    text = re.sub(r"\.", "", text)
+    return text[:70].strip()
 
 
 def _doc_amounts(doc):
@@ -96,6 +109,19 @@ def _num(value):
         return float(str(value).replace(",", "").replace("£", "").strip())
     except (TypeError, ValueError):
         return None
+
+
+def _party_of(message):
+    """The counterparty named in an alert message, if one is named."""
+    if not message:
+        return ""
+    for pattern in (_PARTY_TO, _PARTY_FROM, _PAID_TO, _PARTY_PAID):
+        found = pattern.search(message)
+        if found:
+            value = found.group(found.lastindex).strip(" .,")
+            if 2 < len(value) < 70:
+                return value
+    return ""
 
 
 def _fields(doc):
@@ -243,8 +269,12 @@ class Case(object):
         self.lead_message = msg
         dates = _DATE.findall(msg)
         self.date = _short_date(dates[-1]) if dates else ""
-        party = _PARTY_TO.search(msg) or _PARTY_FROM.search(msg) or _PAID_TO.search(msg)
-        self.party = party.group(party.lastindex) if party else ""
+        self.party = _party_of(msg)
+        if not self.party:
+            for alert in self.alerts:
+                self.party = _party_of(alert.get("message") or "")
+                if self.party:
+                    break
         self.country = ""
         for alert in self.alerts:
             found = (alert.get("measured") or {}).get("countries")
@@ -449,12 +479,16 @@ def _invoice_goods_mismatch(case):
         fields = _fields(doc)
         goods = fields.get("goods") or fields.get("description") or ""
         if not goods:
-            for row in _rows(doc):
+            cells = []
+            for row in _rows(doc)[1:]:
                 for cell in row:
-                    if re.search(r"[A-Za-z]{3}", cell):
-                        cell = re.sub(r"[\d,]+", " ", cell)
-                        cell = re.sub(r"£", " ", cell)
-                        goods += " " + cell
+                    cleaned = re.sub(r"[£\d,]", " ", cell).strip()
+                    if re.match(r"(?i)^(inv|invoice|po|ref)\b", cleaned):
+                        continue
+                    if len(re.findall(r"[A-Za-z]{3,}", cleaned)) >= 2:
+                        cells.append(cleaned)
+            if cells:
+                goods = max(cells, key=lambda c: (len(c), c))
         if not goods or len(_tokens(goods)) < 1:
             continue
         if _tokens(goods) & biz_tokens:
@@ -468,11 +502,13 @@ def _invoice_goods_mismatch(case):
                 "ESCALATE", "ESC_INVOICE_MISMATCH",
                 "The invoices on file ({doc}) are for {goods}, while {name} is declared as "
                 "{business}. Nothing in the paperwork ties the {amount} that moved to the "
-                "trade the account is meant to carry, and one of the counterparties is a "
-                "general trading company that does not supply this business. The invoices do "
-                "not support the payments, so the case is escalated.".format(
+                "trade the account is meant to carry{extra}. The invoices do not support the "
+                "payments, so the case is escalated.".format(
                     doc=doc.get("doc_id"), goods=goods.rstrip("."), name=case.name,
-                    business=business.rstrip("."), amount=_money(case.focus)),
+                    business=business.rstrip("."), amount=_money(case.focus),
+                    extra=(", and the supplier is a general trading company that does not "
+                           "deal in this class of goods"
+                           if "general trading" in (doc.get("text") or "").lower() else "")),
                 case.all_ids([doc]))
     return None
 
@@ -633,6 +669,10 @@ def _list_match(case):
     m = _ENTRY.search(message)
     basis = (m.group(2) if m else "").strip().lower()
     entry_id = m.group(1) if m else ""
+    flow = "receipt from" if "receipt of" in message else "payment to"
+    found = [_num(a) for a in _AMT.findall(message)]
+    found = [f for f in found if f]
+    matched_amount = max(found) if found else case.focus
 
     # anything corroborating identity in the file
     gift = case.docs_of("gift_letter")
@@ -677,27 +717,27 @@ def _list_match(case):
         doc, entry = same
         return case.result(
             "ESCALATE", "ESC_LISTED_PARTY",
-            "The {amount} payment to {party} matches internal list entry {entry_id} "
+            "The {amount} {flow} {party} matches internal list entry {entry_id} "
             "({basis}). The record on file ({doc}) confirms the same name and date of birth "
             "or address as {listed}, who is the subject of an unresolved internal "
             "investigation, so the match is the listed party and not a namesake. "
             "The counterparty is the listed party, or a company it controls, and the case "
             "is escalated.".format(
-                amount=_money(case.focus), party=case.party or "the counterparty",
-                entry_id=entry_id or "on file", basis=basis or "name",
+                amount=_money(matched_amount), party=case.party or "the counterparty",
+                entry_id=entry_id or "on file", basis=basis or "name", flow=flow,
                 doc=doc.get("doc_id"), listed=entry.get("name") or "the listed party"),
             case.all_ids([doc]))
     if different:
         doc, entry = different
         return case.result(
             "CLOSE", "LIST_MATCH_DIFFERENT_PARTY",
-            "The {amount} payment to {party} was flagged against internal list entry "
+            "The {amount} {flow} {party} was flagged against internal list entry "
             "{entry_id} on {basis}. The document on file ({doc}) identifies the "
             "counterparty separately from {listed}: the date of birth, name and address do "
             "not match the listed entry. The match rests on a single shared detail, which "
             "does not make it the same party, so the case is closed.".format(
-                amount=_money(case.focus), party=case.party or "the counterparty",
-                entry_id=entry_id or "on file", basis=basis or "name",
+                amount=_money(matched_amount), party=case.party or "the counterparty",
+                entry_id=entry_id or "on file", basis=basis or "name", flow=flow,
                 doc=doc.get("doc_id"), listed=entry.get("name") or "the listed party"),
             case.all_ids([doc]))
 
@@ -706,47 +746,47 @@ def _list_match(case):
         doc = register[0]
         return case.result(
             "ESCALATE", "ESC_LISTED_PARTY",
-            "The {amount} payment to {party} matches internal list entry {entry_id} on the "
+            "The {amount} {flow} {party} matches internal list entry {entry_id} on the "
             "officer's name and month and year of birth, and the company record ({doc}) "
             "confirms that person was the director and controlling shareholder at the time "
             "of payment. The resignation recorded on the register post-dates the payment, so "
             "the counterparty was still controlled by the listed party. That is an "
             "escalation.".format(
-                amount=_money(case.focus), party=case.party or "the counterparty",
-                entry_id=entry_id or "on file", doc=doc.get("doc_id")),
+                amount=_money(matched_amount), party=case.party or "the counterparty",
+                entry_id=entry_id or "on file", flow=flow, doc=doc.get("doc_id")),
             case.all_ids(register[:2]))
     if ("address" in basis) and register:
         doc = register[0]
         return case.result(
             "CLOSE", "LIST_MATCH_DIFFERENT_PARTY",
-            "The {amount} payment to {party} was flagged only on a registered address that "
+            "The {amount} {flow} {party} was flagged only on a registered address that "
             "it shares with internal list entry {entry_id}. The company record ({doc}) names "
             "a different company, a different officer and a different unit in the same works, "
             "and the receipt on file shows an ordinary course booking. One shared address "
             "does not make this the listed party, so the case is closed.".format(
-                amount=_money(case.focus), party=case.party or "the counterparty",
-                entry_id=entry_id or "on file", doc=doc.get("doc_id")),
+                amount=_money(matched_amount), party=case.party or "the counterparty",
+                entry_id=entry_id or "on file", flow=flow, doc=doc.get("doc_id")),
             case.all_ids(register[:2] + gift[:1]))
     if others:
         return case.result(
             "ESCALATE", "ESC_LISTED_PARTY",
-            "The {amount} payment to {party} matches internal list entry {entry_id} on "
+            "The {amount} {flow} {party} matches internal list entry {entry_id} on "
             "{basis}, and the case also raises {rules}. Nothing on file resolves the match "
             "either way while the rest of the activity is unexplained, so the case is "
             "escalated to the MLRO.".format(
-                amount=_money(case.focus), party=case.party or "the counterparty",
-                entry_id=entry_id or "on file", basis=basis or "name",
+                amount=_money(matched_amount), party=case.party or "the counterparty",
+                entry_id=entry_id or "on file", basis=basis or "name", flow=flow,
                 rules=", ".join(others)),
             case.tx_ids())
     return case.result(
         "RFI", "RFI_COUNTERPARTY_DETAILS",
-        "The {amount} payment to {party} matches internal list entry {entry_id} on {basis}, "
+        "The {amount} {flow} {party} matches internal list entry {entry_id} on {basis}, "
         "and no document on file settles whether it is the same party. Nothing else in the "
         "case is concerning, so the case can be settled by asking the customer for the "
         "counterparty's full name, date of birth and address, and for the invoice or "
         "agreement behind the payment.".format(
-            amount=_money(case.focus), party=case.party or company or "the counterparty",
-            entry_id=entry_id or "on file", basis=basis or "name"),
+            amount=_money(matched_amount), party=case.party or "the counterparty",
+            entry_id=entry_id or "on file", basis=basis or "name", flow=flow),
         case.tx_ids())
 
 
@@ -766,10 +806,12 @@ def _business_records(case):
         "CLOSE", "BUSINESS_RECORDS_RECONCILE",
         "The takings paperwork on file ({docs}) itemises each collection for {name}, and "
         "the amounts add up to the {amount} the cash alert measured across the deposits. "
-        "The cash handling procedure explains why each site banks its own takings into its "
-        "own branch. The deposits reconcile to the business records, so the case is closed."
+        "{extra}The deposits reconcile to the business records, so the case is closed."
         .format(docs=", ".join(case.doc_ids(records, 3)), name=case.name,
-                amount=_money(amount)),
+                amount=_money(amount),
+                extra=("The cash handling procedure on file explains why each site banks its "
+                       "own takings into its own branch. "
+                       if case.docs_of("cash_handling_procedure") else "")),
         case.all_ids(records[:3]))
 
 
@@ -833,10 +875,23 @@ def _refund(case):
     return case.result(
         "CLOSE", "REFUND_OF_EARLIER_PAYMENT",
         "The {amount} is not new money: {what}, and the amount returned matches the amount "
-        "paid out earlier. An earlier review on file records the original payment to the same "
-        "counterparty, so the movement is the reversal of it. The money is a refund of an "
-        "earlier payment, so the case is closed.".format(amount=_money(amount), what=what),
+        "paid out earlier{suffix}. The money is a refund of an earlier payment, so the case "
+        "is closed.".format(amount=_money(amount), what=what,
+                            suffix=_prior_review(case)),
         case.all_ids(docs))
+
+
+def _prior_review(case):
+    """A clause pointing at an earlier review of the same counterparty, when there is one."""
+    party = (case.party or "").lower()
+    for review in (case.f.get("previous_reviews") or []):
+        note = (review.get("note") or "").lower()
+        if party and party in note:
+            return (", and the earlier review %s records the original payment to the same "
+                    "counterparty, so this movement reverses it" % review.get("review_id"))
+    if party and party in (case.lead_message or "").lower():
+        return ", and the original payment went out to the same counterparty earlier in the year"
+    return ""
 
 
 def _group_company(case):
@@ -992,13 +1047,15 @@ def _invoice(case):
     if not payee:
         found = re.search(r"from ([A-Z][A-Za-z&.'\- ]+)$", (doc.get("title") or "").strip())
         payee = found.group(1).strip() if found else "the supplier named on the document"
+    payee = _clean(payee) or "the supplier named on the document"
+    what = _clean(what) or "the supply described"
     return case.result(
         "CLOSE", "INVOICE_MATCHES",
         "{doc} ({title}) supports the payment: it names {payee} as the payee, states {what} "
         "and carries the {amount} the alert measured, with payment to the account shown on the "
         "document. The invoice, contract or payment file matches the amount, payee and date of "
         "the payment that was caught. The case is closed.".format(
-            doc=doc.get("doc_id"), title=(doc.get("title") or "document").rstrip("."),
+            doc=doc.get("doc_id"), title=_title(doc),
             payee=payee, what=what.rstrip("."), amount=_money(amount)),
         case.all_ids(docs))
 
@@ -1134,11 +1191,12 @@ def _unexplained(case):
     if "TM10" in case.rules:
         return case.result(
             "ESCALATE", "ESC_EARLY_REDEMPTION",
-            "Fund units were bought and sold back inside {days} days, well within the 90-day "
-            "limit, realising {amount} that then left the account. Nothing on file explains why "
-            "the holding was liquidated so quickly, and the timing is consistent with using "
-            "fund subscriptions to move money. Early redemption used to move funds is "
-            "escalated.".format(days="90", amount=amount), ids)
+            "Fund units bought for {amount} were sold back {days} days later, inside the "
+            "90-day limit for early redemption, and the proceeds then left the account. "
+            "Nothing on file explains why the holding was liquidated so quickly, and the "
+            "timing is consistent with using fund subscriptions to move money. Early "
+            "redemption used to move funds is escalated.".format(
+                days=_days_between(case.lead_message), amount=amount), ids)
     if "TM06" in case.rules:
         return case.result(
             "ESCALATE", "ESC_HIGH_RISK_CORRIDOR",
@@ -1229,6 +1287,12 @@ def _unexplained(case):
             amount=amount, mult=case.multiple, rules=others), ids)
 
 
+def _days_between(message):
+    """'... 59 days later. The limit is 90 days.' -> '59'."""
+    found = re.search(r"(\d+) days later", message or "")
+    return found.group(1) if found else "shortly"
+
+
 def _quote(text, limit=150):
     """Pull the customer's own words out of a chat document."""
     if not text:
@@ -1256,7 +1320,8 @@ def _finish(case, decision):
 
     Templates vary, so the finished reason is checked and, when a fact is
     missing, one short factual sentence carrying the missing facts is added.
-    The result is always two to four sentences.
+    The first sentence (context) and the last two (finding and, for an RFI,
+    the ask) are always kept; the result stays within two to four sentences.
     """
     text = " ".join(decision["reason"].split())
     sentences = _sentences(text)
@@ -1276,9 +1341,11 @@ def _finish(case, decision):
     if bits:
         tail = "; ".join(bits)
         tail = tail[0].upper() + tail[1:] + "."
-        if len(sentences) >= 4:
-            sentences = sentences[:3]
+        if len(sentences) + 1 > 4:
+            sentences = [sentences[0]] + sentences[-(2 if len(sentences) > 2 else 1):]
         sentences.append(tail)
+    if len(sentences) > 4:
+        sentences = sentences[:4]
     decision["reason"] = " ".join(sentences)
     return decision
 

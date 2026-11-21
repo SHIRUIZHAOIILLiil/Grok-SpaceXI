@@ -216,7 +216,7 @@ parsing, not by the decision: 209,212 transactions are read once per institution
   contain document templates we have not seen, which fall back to ESCALATE by design.
 - `RFI` vs `ESCALATE` on thin evidence is the hardest boundary; the current split is conservative on
   suspicion and costs verdict points where an RFI would have been enough.
-- At 12:30 GMT, 36 of the 4,000 reason strings repeat their own appositive in the corridor
+- At 12:24 GMT, 36 of the 4,000 reason strings repeat their own appositive in the corridor
   sentence ("moved to or from a higher-risk country, a higher-risk country the customer did not
   declare"). Cosmetic, but the reason is 40% of each score, so it is on the list to fix.
 
