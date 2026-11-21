@@ -17,3 +17,6 @@ site/
 
 # queryable audit index, rebuilt on demand
 build/
+
+# local model key for testing this box only; never committed
+.openrouter_key
