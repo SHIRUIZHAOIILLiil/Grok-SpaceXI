@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Casefile">
+  <defs><clipPath id="f"><rect width="64" height="64" rx="14"/></clipPath></defs>
+  <g clip-path="url(#f)">
+    <rect width="64" height="64" fill="#0d1014"/>
+    <g transform="rotate(-15 29 49)">
+      <circle cx="29" cy="49" r="36" fill="#f6efe3"/>
+      <rect x="14" y="40" width="7" height="18" rx="3.5" fill="#0d1116"/>
+      <rect x="34" y="40" width="7" height="18" rx="3.5" fill="#0d1116"/>
+      <ellipse cx="9.5" cy="59" rx="5" ry="3.2" fill="#f0a79e" opacity=".55"/>
+      <ellipse cx="48" cy="59" rx="5" ry="3.2" fill="#f0a79e" opacity=".55"/>
+    </g>
+    <g transform="rotate(-15 34 38)"><rect x="33" y="12" width="7" height="12" rx="1.6" fill="#c9a44c"/></g>
+  </g>
+</svg>

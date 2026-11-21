@@ -340,7 +340,29 @@ PAGE = r"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<link rel="icon" href="data:image/svg+xml;utf8,<svg class='logo' viewBox='0 0 64 64' aria-hidden='true'><rect x='1' y='1' width='62' height='62' rx='14' fill='%23151c26' stroke='%232a3444' stroke-width='2'/><path d='M18 15h18l10 10v24a2 2 0 0 1-2 2H18a2 2 0 0 1-2-2V17a2 2 0 0 1 2-2z' fill='none' stroke='%23f2f5fa' stroke-width='3' stroke-linejoin='round'/><path d='M36 15v10h10' fill='none' stroke='%23f2f5fa' stroke-width='3' stroke-linejoin='round'/><path d='M24 36l5 5 11-11' fill='none' stroke='%23c9a44c' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="icon" href="data:image/svg+xml;utf8,<svg class='logo' viewBox='0 0 512 512' aria-hidden='true'>
+  
+  <g >
+    <rect width='512' height='512' fill='%230d1015'/>
+
+    <g transform='translate(26,-18) scale(0.93)'><g transform='rotate(-12 210 360)'>
+      <!-- case-file tab, sitting on the crown -->
+      <rect x='292' y='104' width='46' height='74' rx='10' fill='%23c9a44c'/>
+      <rect x='292' y='104' width='46' height='22' rx='10' fill='%23e2c078'/>
+
+      <!-- head -->
+      <circle cx='210' cy='360' r='250' fill='%23f7efe3'/>
+
+      <!-- two capsule eyes, no pupils, no brows -->
+      <rect x='150' y='300' width='48' height='122' rx='24' fill='%230c1015'/>
+      <rect x='256' y='300' width='48' height='122' rx='24' fill='%230c1015'/>
+
+      <!-- blush -->
+      <ellipse cx='112' cy='404' rx='38' ry='24' fill='%23efa79d' opacity='0.6'/>
+      <ellipse cx='344' cy='404' rx='38' ry='24' fill='%23efa79d' opacity='0.6'/>
+    </g></g>
+  </g>
+</svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Track 1 · Alert review console</title>
 <style>
@@ -490,7 +512,29 @@ pre.rawjson{margin:6px 0 0;background:#0a1119;border:1px solid var(--line);borde
 <body>
 <header>
   <div class="htop">
-    <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect x="1" y="1" width="62" height="62" rx="14" fill="#151c26" stroke="#2a3444" stroke-width="2"/><path d="M18 15h18l10 10v24a2 2 0 0 1-2 2H18a2 2 0 0 1-2-2V17a2 2 0 0 1 2-2z" fill="none" stroke="#f2f5fa" stroke-width="3" stroke-linejoin="round"/><path d="M36 15v10h10" fill="none" stroke="#f2f5fa" stroke-width="3" stroke-linejoin="round"/><path d="M24 36l5 5 11-11" fill="none" stroke="#c9a44c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg class="logo" viewBox="0 0 512 512" aria-hidden="true">
+  
+  <g >
+    <rect width="512" height="512" fill="#0d1015"/>
+
+    <g transform="translate(26,-18) scale(0.93)"><g transform="rotate(-12 210 360)">
+      <!-- case-file tab, sitting on the crown -->
+      <rect x="292" y="104" width="46" height="74" rx="10" fill="#c9a44c"/>
+      <rect x="292" y="104" width="46" height="22" rx="10" fill="#e2c078"/>
+
+      <!-- head -->
+      <circle cx="210" cy="360" r="250" fill="#f7efe3"/>
+
+      <!-- two capsule eyes, no pupils, no brows -->
+      <rect x="150" y="300" width="48" height="122" rx="24" fill="#0c1015"/>
+      <rect x="256" y="300" width="48" height="122" rx="24" fill="#0c1015"/>
+
+      <!-- blush -->
+      <ellipse cx="112" cy="404" rx="38" ry="24" fill="#efa79d" opacity="0.6"/>
+      <ellipse cx="344" cy="404" rx="38" ry="24" fill="#efa79d" opacity="0.6"/>
+    </g></g>
+  </g>
+</svg>
     <h1><span class="brand">Casefile</span> · Track 1 alert review</h1>
     <span class="sub">alert → evidence → verdict → reason, every claim clickable</span>
     <span class="facts" id="facts"></span>

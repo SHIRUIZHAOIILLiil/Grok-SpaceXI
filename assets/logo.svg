@@ -1,18 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 128" width="460" height="128" role="img" aria-label="Casefile">
-  <!-- plate so the lockup reads on light or dark pages -->
-  <rect x="0" y="0" width="460" height="128" rx="22" fill="#0f1319"/>
-  <rect x="0.5" y="0.5" width="459" height="127" rx="22" fill="none" stroke="#2a3444"/>
-  <!-- mark -->
-  <rect x="26" y="34" width="60" height="60" rx="14" fill="#151c26" stroke="#2a3444" stroke-width="2"/>
-  <path d="M42 47h17l10 10v22a2 2 0 0 1-2 2H42a2 2 0 0 1-2-2V49a2 2 0 0 1 2-2z"
-        fill="none" stroke="#f2f5fa" stroke-width="2.8" stroke-linejoin="round"/>
-  <path d="M59 47v10h10" fill="none" stroke="#f2f5fa" stroke-width="2.8" stroke-linejoin="round"/>
-  <path d="M48 68l4.4 4.4 9.6-9.6" fill="none" stroke="#c9a44c" stroke-width="3.2"
-        stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- wordmark -->
-  <text x="108" y="82" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif"
-        font-size="42" font-weight="600" letter-spacing="-1.3" fill="#f2f5fa">Casefile</text>
-  <rect x="110" y="92" width="168" height="3" rx="1.5" fill="#c9a44c"/>
-  <text x="110" y="112" font-family="ui-monospace,SFMono-Regular,Menlo,monospace"
-        font-size="11" letter-spacing="2.6" fill="#7d8a9c">ALERT REVIEW</text>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 470 128" width="470" height="128" role="img" aria-label="Casefile">
+  <rect x="0" y="0" width="470" height="128" rx="22" fill="#0f1319"/>
+  <rect x="0.5" y="0.5" width="469" height="127" rx="22" fill="none" stroke="#2a3444"/>
+  <image x="24" y="30" width="68" height="68" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJDYXNlZmlsZSBib3QiPgogIDxkZWZzPgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJiZyIgY3g9IjM0JSIgY3k9IjcyJSIgcj0iODAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzFhMjAyOSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwYjBlMTIiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImZhY2UiIHgxPSIwLjE1IiB5MT0iMCIgeDI9IjAuNSIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZmRmN2VjIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2U5ZGVjZSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxjbGlwUGF0aCBpZD0iY2FyZCI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMDgiLz48L2NsaXBQYXRoPgogIDwvZGVmcz4KICA8ZyBjbGlwLXBhdGg9InVybCgjY2FyZCkiPgogICAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9InVybCgjYmcpIi8+CgogICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjYsLTE4KSBzY2FsZSgwLjkzKSI+PGcgdHJhbnNmb3JtPSJyb3RhdGUoLTEyIDIxMCAzNjApIj4KICAgICAgPCEtLSBjYXNlLWZpbGUgdGFiLCBzaXR0aW5nIG9uIHRoZSBjcm93biAtLT4KICAgICAgPHJlY3QgeD0iMjkyIiB5PSIxMDQiIHdpZHRoPSI0NiIgaGVpZ2h0PSI3NCIgcng9IjEwIiBmaWxsPSIjYzlhNDRjIi8+CiAgICAgIDxyZWN0IHg9IjI5MiIgeT0iMTA0IiB3aWR0aD0iNDYiIGhlaWdodD0iMjIiIHJ4PSIxMCIgZmlsbD0iI2UyYzA3OCIvPgoKICAgICAgPCEtLSBoZWFkIC0tPgogICAgICA8Y2lyY2xlIGN4PSIyMTAiIGN5PSIzNjAiIHI9IjI1MCIgZmlsbD0idXJsKCNmYWNlKSIvPgoKICAgICAgPCEtLSB0d28gY2Fwc3VsZSBleWVzLCBubyBwdXBpbHMsIG5vIGJyb3dzIC0tPgogICAgICA8cmVjdCB4PSIxNTAiIHk9IjMwMCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjEyMiIgcng9IjI0IiBmaWxsPSIjMGMxMDE1Ii8+CiAgICAgIDxyZWN0IHg9IjI1NiIgeT0iMzAwIiB3aWR0aD0iNDgiIGhlaWdodD0iMTIyIiByeD0iMjQiIGZpbGw9IiMwYzEwMTUiLz4KCiAgICAgIDwhLS0gYmx1c2ggLS0+CiAgICAgIDxlbGxpcHNlIGN4PSIxMTIiIGN5PSI0MDQiIHJ4PSIzOCIgcnk9IjI0IiBmaWxsPSIjZWZhNzlkIiBvcGFjaXR5PSIwLjYiLz4KICAgICAgPGVsbGlwc2UgY3g9IjM0NCIgY3k9IjQwNCIgcng9IjM4IiByeT0iMjQiIGZpbGw9IiNlZmE3OWQiIG9wYWNpdHk9IjAuNiIvPgogICAgPC9nPjwvZz4KICA8L2c+Cjwvc3ZnPgo="/>
+  <text x="112" y="76" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif"
+        font-size="40" font-weight="600" letter-spacing="-1.2" fill="#f2f5fa">Casefile</text>
+  <rect x="114" y="86" width="160" height="3" rx="1.5" fill="#c9a44c"/>
+  <text x="114" y="106" font-family="ui-monospace,SFMono-Regular,Menlo,monospace"
+        font-size="10.5" letter-spacing="2.6" fill="#7d8a9c">ALERT REVIEW</text>
 </svg>
