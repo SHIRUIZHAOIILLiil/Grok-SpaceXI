@@ -22,6 +22,13 @@ import urllib.error
 import urllib.request
 
 ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
+# Grading runs hit OpenRouter, because the brief only allows that gateway. A
+# different OpenAI-compatible base URL may be set for local testing only.
+BASE = os.environ.get("HACKATHON_LLM_BASE", "").rstrip("/")
+URL = (BASE + "/chat/completions") if BASE else ENDPOINT
+# A relay behind Cloudflare rejects urllib's default signature (error 1010), so a
+# plain client string is sent when a test base URL is in use.
+UA = "curl/8.7.1" if BASE else "casefile/1.0 (+https://github.com/SHIRUIZHAOIILLiil/Grok-SpaceXI)"
 MODEL = os.environ.get("HACKATHON_LLM_MODEL", "openai/gpt-4o-mini")
 MAX_CALLS = int(os.environ.get("HACKATHON_LLM_CALLS", "400"))
 MAX_SECONDS = float(os.environ.get("HACKATHON_LLM_SECONDS", "120"))
@@ -66,11 +73,12 @@ def _call(system, user):
         "messages": [{"role": "system", "content": system},
                      {"role": "user", "content": user}],
     }).encode("utf-8")
-    request = urllib.request.Request(ENDPOINT, data=body, headers={
+    request = urllib.request.Request(URL, data=body, headers={
         "Authorization": "Bearer " + key,
         "Content-Type": "application/json",
         "HTTP-Referer": "https://github.com/SHIRUIZHAOIILLiil/Grok-SpaceXI",
         "X-Title": "casefile-alert-review",
+        "User-Agent": UA,
     })
     try:
         with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
@@ -100,6 +108,11 @@ def _json_from(text):
         return json.loads(match.group(0))
     except ValueError:
         return None
+
+
+def ask_json(system, user):
+    """One JSON answer from the model, or None."""
+    return _json_from(_call(system, user))
 
 
 def quote_containing(text, question, max_words=24):

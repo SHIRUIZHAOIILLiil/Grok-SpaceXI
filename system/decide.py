@@ -21,6 +21,8 @@ Order of work for one case
 
 import re
 
+import second_opinion
+
 FALLBACK = ("ESCALATE", "ESC_UNEXPLAINED_FUNDS")
 
 _MONTHS = ("January|February|March|April|May|June|July|August|September|"
@@ -1423,4 +1425,13 @@ def _decide(case):
         if decision:
             return decision
 
-    return _unexplained(case)
+    decision = _unexplained(case)
+    if decision.get("verdict") == "ESCALATE":
+        # The rules found no explanation. Ask the model once whether one of the
+        # documents on file has one; it may only promote to CLOSE on a verbatim
+        # quote from a document already in the case, and never changes anything
+        # when that check fails.
+        promoted = second_opinion.promote(case)
+        if promoted:
+            return promoted
+    return decision

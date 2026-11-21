@@ -236,6 +236,34 @@ python3 tools/audit.py sql "select verdict, count(*) from cases group by 1"
 It is the difference between "the system says CLOSE" and "the system says CLOSE, and here
 is the query that shows which 801 bank statements carried the most closes."
 
+## Where the model is used, and where it is not
+
+The verdict is produced by a deterministic function. The brief allows a model ("rules, language
+models or both"), and a model is used in exactly two places, both of them unable to invent a fact:
+
+1. **Reading prose the local parsers miss.** 46 of the 140 gift letters state the giver's date of
+   birth in a sentence rather than a field. The local parser returns nothing for those, so the model
+   is asked for the shortest verbatim span that answers the question, the span is checked character
+   for character against the document, it must contain a birth cue ("born", "date of birth", "d.o.b")
+   and it is then parsed by the same local parser. With no key this simply does not happen and the
+   output is byte-identical.
+2. **A second read of the file on escalations** (`system/second_opinion.py`). When the rules reach
+   "unexplained", the model is asked whether one of the documents on file explains the activity. It
+   may only name a document already in the case and quote it; the quote must carry an amount that
+   reconciles with the alert, and the document's own type must be one that can close that rule, or
+   the escalation stands.
+
+Measured on the 4,000 development cases: the second read promoted **0 of 236** fallback cases, so it
+is **off by default** and enabled per run with `HACKATHON_LLM_PROMOTE=1`. A model-dependent verdict is
+also availability-dependent, and reproducibility is scored across five runs: a path that can only
+change a verdict when a third-party API happens to respond is not worth two points of variance for
+zero measured gain. The parsing path stays on because it is bounded (one call on the development set)
+and cannot change a verdict unless the quote verifies.
+
+Hard limits: OpenRouter only (`OPENROUTER_API_KEY`), temperature 0, 20 s per call, 400 calls and 120 s
+of model time per run, and the first transport error disables the model for the rest of that run.
+`HACKATHON_DISABLE_LLM=1` turns all of it off.
+
 ## Known gaps
 
 - The decision table is tuned against the development set and its policy text; the hidden set may
