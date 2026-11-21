@@ -29,3 +29,7 @@ build/
 .neon_key
 .neon
 .neon_url
+
+# design scratch
+assets/_*.svg
+assets/preview.html
