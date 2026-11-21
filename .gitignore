@@ -14,3 +14,6 @@ scratch/
 
 # local full-data export (40 MB, never committed)
 site/
+
+# queryable audit index, rebuilt on demand
+build/
