@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Casefile — 2-minute demo deck</title>
+<style>
+  :root{
+    --bg:#080b12; --panel:#0f1520; --line:#1e2736; --ink:#e8eefc; --dim:#8b9ab5;
+    --close:#38d39f; --rfi:#f2b545; --esc:#ff6b6b; --accent:#5b8cff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--ink);
+    font:400 16px/1.5 ui-sans-serif,-apple-system,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+  #stage{
+    width:1600px; height:900px; position:relative; transform-origin:center center;
+    background:radial-gradient(1200px 700px at 78% -10%, #13203a 0%, var(--bg) 60%);
+    overflow:hidden;
+  }
+  .slide{
+    position:absolute; inset:0; padding:92px 110px;
+    display:none; flex-direction:column; justify-content:center;
+  }
+  .slide.on{display:flex; animation:fade .28s ease}
+  .slide .notes{display:none}
+  @keyframes fade{from{opacity:0; transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  h1{font-size:96px; line-height:1.02; letter-spacing:-3px; font-weight:650}
+  h2{font-size:60px; line-height:1.08; letter-spacing:-1.6px; font-weight:620; max-width:1150px}
+  h3{font-size:26px; font-weight:600; letter-spacing:.2px; color:var(--dim); text-transform:uppercase}
+  p{font-size:30px; line-height:1.45; color:#c6d2e8; max-width:1120px}
+  .lead{font-size:34px; color:#dbe5f7}
+  .rule{width:88px; height:5px; border-radius:3px; background:var(--accent); margin:30px 0 34px}
+  ul{margin-top:8px}
+  li{font-size:30px; line-height:1.55; color:#c6d2e8; margin:14px 0 14px 34px; padding-left:6px}
+  li::marker{color:var(--accent)}
+  code{font:500 26px ui-monospace,SFMono-Regular,Menlo,monospace; color:#a8c4ff;
+       background:#0d1626; border:1px solid #1c2942; border-radius:8px; padding:2px 8px}
+  .stats{display:flex; gap:64px; margin-top:52px}
+  .stat b{display:block; font-size:58px; letter-spacing:-1.5px; font-weight:650}
+  .stat span{font-size:20px; color:var(--dim); letter-spacing:.3px}
+  .tag{display:inline-block; font:600 20px/1 ui-sans-serif; letter-spacing:.6px;
+       padding:10px 16px; border-radius:999px; border:1px solid var(--line); color:var(--dim)}
+  .tag.close{color:var(--close); border-color:#1d4a3c; background:#0c1f19}
+  .tag.esc{color:var(--esc); border-color:#4a2025; background:#1f0c0f}
+  .tag.rfi{color:var(--rfi); border-color:#4a3a1a; background:#1f1809}
+  .case-head{display:flex; align-items:center; gap:22px; margin-bottom:26px}
+  .case-id{font:600 30px ui-monospace,Menlo,monospace; color:#dbe5f7}
+  .flow{display:flex; gap:14px; align-items:center; margin-top:46px; flex-wrap:wrap}
+  .flow div{font-size:23px; padding:12px 18px; border:1px solid var(--line);
+            border-radius:10px; background:#0c121d; color:#b9c7e0}
+  .flow i{color:#3b4a63; font-style:normal; font-size:24px}
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:56px; margin-top:10px}
+  .card{border:1px solid var(--line); border-radius:16px; padding:34px; background:#0b1018}
+  .card h4{font-size:25px; font-weight:620; margin-bottom:16px; letter-spacing:.2px}
+  .card p{font-size:25px; line-height:1.5}
+  .quote{font:500 27px/1.5 ui-monospace,Menlo,monospace; color:#cfe0ff;
+         border-left:4px solid var(--accent); padding-left:22px; margin-top:26px}
+  #bar{position:absolute; left:0; bottom:0; height:3px; background:var(--accent); width:0;
+       transition:width .28s ease; opacity:.85}
+  #num{position:absolute; right:44px; bottom:24px; font:500 17px ui-monospace,Menlo,monospace;
+       color:#4d5a73}
+  #hint{position:absolute; left:44px; bottom:22px; font:500 15px ui-sans-serif; color:#3a475e}
+  #notes{
+    position:fixed; left:0; right:0; bottom:0; max-height:38vh; overflow:auto; display:none;
+    background:#05070c; border-top:1px solid #1a2333; padding:22px 34px; z-index:9;
+    font:400 17px/1.6 ui-sans-serif; color:#9fb0cc;
+  }
+  #notes b{color:#dbe5f7}
+  body.notes #notes{display:block}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 1 ------------------------------------------------------------- -->
+  <section class="slide on">
+    <h1>Casefile</h1>
+    <p class="lead" style="margin-top:26px">Read the alert. Read the evidence. Write the verdict —<br>and show your working.</p>
+    <div class="stats">
+      <div class="stat"><b>4,000</b><span>cases</span></div>
+      <div class="stat"><b>6,467</b><span>alerts</span></div>
+      <div class="stat"><b>16,402</b><span>documents</span></div>
+      <div class="stat"><b>4</b><span>institutions</span></div>
+    </div>
+    <div class="notes"><b>0:00</b> · 停在这一页。报项目名，一句话说定位。不要念数字清单，让画面自己说话。</div>
+  </section>
+
+  <!-- 2 ------------------------------------------------------------- -->
+  <section class="slide">
+    <h3>The problem</h3>
+    <h2>Every alert still needs a person.</h2>
+    <div class="rule"></div>
+    <ul>
+      <li>Rules flag unusual money. Most flags have an ordinary explanation.</li>
+      <li>An analyst reads the profile, the transactions and the documents — then decides.</li>
+      <li>A wrong <b>close</b> is far worse than an unnecessary escalation.</li>
+    </ul>
+    <div class="notes"><b>0:15</b> · 三句话讲完就切。重点落在最后一句：错关比多升贵得多。</div>
+  </section>
+
+  <!-- 3 ------------------------------------------------------------- -->
+  <section class="slide">
+    <h3>What we built</h3>
+    <h2>One command in, one decision out.</h2>
+    <div class="rule"></div>
+    <p><code>system/run &lt;institution folder&gt; &lt;output.jsonl&gt;</code></p>
+    <div class="flow">
+      <div>alerts + evidence</div><i>→</i>
+      <div>verdict</div><i>·</i>
+      <div>reason code</div><i>·</i>
+      <div>reason</div><i>·</i>
+      <div>cited IDs</div>
+    </div>
+    <p style="margin-top:48px; color:#8b9ab5; font-size:26px">Four institutions, four policies. 26 reason codes. Standard library only.</p>
+    <div class="notes"><b>0:25</b> · 强调"一个命令"和"带引用的输出"。不要展开实现。</div>
+  </section>
+
+  <!-- 4 ------------------------------------------------------------- -->
+  <section class="slide">
+    <div class="case-head">
+      <span class="tag close">CLOSE</span>
+      <span class="case-id">BK-CS100112</span>
+    </div>
+    <h2>It looks like two reasons to escalate.</h2>
+    <div class="rule"></div>
+    <ul>
+      <li>Income 4.6× the declared profile in 30 days.</li>
+      <li>£7,702.22 to <b>Lebanon</b> — a country he never declared.</li>
+      <li>Then: the hotel email. Wedding cancelled, deposit refunded in full.</li>
+    </ul>
+    <div class="quote">REFUND_OF_EARLIER_PAYMENT · EML-8464 · £7,702.22 to the penny</div>
+    <div class="notes"><b>0:35</b> · 先立"该升级"的预期，再翻。翻的时候停顿一下。</div>
+  </section>
+
+  <!-- 5 ------------------------------------------------------------- -->
+  <section class="slide">
+    <div class="case-head">
+      <span class="tag esc">ESCALATE</span>
+      <span class="case-id">BK-CS109535</span>
+    </div>
+    <h2>And this one looks explainable.</h2>
+    <div class="rule"></div>
+    <ul>
+      <li>Three strangers pay in: £8,271.55 · £6,804.71 · £7,526.13</li>
+      <li>Four identical £4,803.01 slices go out to four names in Lebanon.</li>
+      <li>Only explanation on file: a chat — “I am sending money to help my family.”</li>
+    </ul>
+    <div class="quote">ESC_HIGH_RISK_CORRIDOR · once there is suspicion, you do not ask the customer</div>
+    <div class="notes"><b>1:00</b> · 这一页讲"为什么不能问客户"——政策原话，通风报信是犯罪。</div>
+  </section>
+
+  <!-- 6 ------------------------------------------------------------- -->
+  <section class="slide">
+    <h3>How it decides</h3>
+    <h2>Numbers first, then documents, then IDs.</h2>
+    <div class="rule"></div>
+    <div class="two">
+      <div class="card">
+        <h4>1 · Read the measurement</h4>
+        <p>The alert carries structured values: £19,212.04, 30 days, Lebanon, limit £5,000.</p>
+      </div>
+      <div class="card">
+        <h4>2 · Find the money in a document</h4>
+        <p>Search the customer's file for a document whose amount reconciles. No match, no close.</p>
+      </div>
+    </div>
+    <div class="two" style="margin-top:24px">
+      <div class="card">
+        <h4>3 · Cite what decided it</h4>
+        <p>Every verdict lists the document and transaction IDs it rests on, so it can be checked.</p>
+      </div>
+      <div class="card">
+        <h4>4 · Say the same thing twice</h4>
+        <p>5 runs × 4 institutions, byte-identical. 4,000 cases in 5.5 seconds.</p>
+      </div>
+    </div>
+    <div class="notes"><b>1:25</b> · 四个卡片快速带过，停在"byte-identical"上——这是 20% 的分。</div>
+  </section>
+
+  <!-- 7 ------------------------------------------------------------- -->
+  <section class="slide">
+    <h3>Where the model is — and is not</h3>
+    <h2>The verdict is deterministic. The model reads prose.</h2>
+    <div class="rule"></div>
+    <ul>
+      <li>46 of 140 gift letters state a birth date in a sentence, not a field.</li>
+      <li>The model may return <b>a verbatim quote</b>; it must occur in the document, character for character.</li>
+      <li>Then the local parser reads it. A wrong quote changes nothing.</li>
+    </ul>
+    <p style="margin-top:34px; color:#8b9ab5; font-size:25px">Measured on all 4,000 cases: the model changed <b>0</b> verdicts.</p>
+    <div class="notes"><b>1:35</b> · 这句话是全场最值钱的：我们知道自己什么时候不该用模型。</div>
+  </section>
+
+  <!-- 8 ------------------------------------------------------------- -->
+  <section class="slide">
+    <h2>Everything is checkable.</h2>
+    <div class="rule"></div>
+    <p style="font-size:29px">github.com/SHIRUIZHAOIILLiil/Grok-SpaceXI</p>
+    <p style="font-size:29px; margin-top:14px">grok-spacexi.vercel.app</p>
+    <p style="margin-top:44px; color:#8b9ab5; font-size:24px">Every customer, company, account and document in the dataset is invented.</p>
+    <div class="notes"><b>1:50</b> · 两个地址念清楚。最后一句是合规声明，别省。</div>
+  </section>
+
+  <div id="bar"></div>
+  <div id="num">1 / 8</div>
+  <div id="hint">← → · N notes · F fullscreen</div>
+</div>
+<div id="notes"></div>
+
+<script>
+(function(){
+  var slides = [].slice.call(document.querySelectorAll('.slide'));
+  var i = 0, notes = document.getElementById('notes');
+  function fit(){
+    var s = Math.min(window.innerWidth / 1600, window.innerHeight / 900);
+    document.getElementById('stage').style.transform = 'scale(' + s + ')';
+  }
+  function show(n){
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function(el, k){ el.classList.toggle('on', k === i); });
+    document.getElementById('num').textContent = (i + 1) + ' / ' + slides.length;
+    document.getElementById('bar').style.width = ((i + 1) / slides.length * 100) + '%';
+    var note = slides[i].querySelector('.notes');
+    notes.innerHTML = note ? note.innerHTML : '';
+  }
+  document.addEventListener('keydown', function(e){
+    var k = e.key;
+    if (k === 'ArrowRight' || k === ' ' || k === 'PageDown'){ e.preventDefault(); show(i + 1); }
+    else if (k === 'ArrowLeft' || k === 'PageUp'){ e.preventDefault(); show(i - 1); }
+    else if (k === 'Home'){ show(0); } else if (k === 'End'){ show(slides.length - 1); }
+    else if (k === 'n' || k === 'N'){ document.body.classList.toggle('notes'); }
+    else if (k === 'f' || k === 'F'){
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  });
+  document.addEventListener('click', function(e){ show(e.clientX < window.innerWidth * 0.25 ? i - 1 : i + 1); });
+  window.addEventListener('resize', fit);
+  fit(); show(0);
+})();
+</script>
+</body>
+</html>
