@@ -1,5 +1,6 @@
 {
- "_source": "data/institutions/<inst>/POLICY.md — verify every number against the file before use (owner A)",
+ "_institution": "investment",
+ "_source": "data/institutions/investment/POLICY.md - every number below is transcribed from the quoted line (owner A, checked 2026-11-21)",
  "codes": {
   "CLOSE": [
    "COLLECTION_DOCUMENTED",
@@ -34,6 +35,15 @@
    "ESC_LISTED_PARTY"
   ]
  },
+ "rules_run": [
+  "TM01",
+  "TM02",
+  "TM06",
+  "TM07",
+  "TM08",
+  "TM10",
+  "TM22"
+ ],
  "high_risk_countries": [
   "Afghanistan",
   "Belarus",
@@ -53,7 +63,7 @@
   "Venezuela",
   "Yemen"
  ],
- "own_account_rfi_multiple": 5,
+ "high_risk_countries_as_of": "2026-10-01",
  "context_only": [
   "round amount",
   "shared device",
@@ -63,14 +73,92 @@
   "crypto counterparty",
   "gambling counterparty"
  ],
+ "thresholds": {
+  "cash_reporting_threshold": {
+   "value": 10000.0,
+   "source": "POLICY.md 'Policy settings': 'Cash reporting threshold: GBP 10,000.00.'"
+  },
+  "own_account_rfi_multiple": {
+   "value": 5,
+   "source": "POLICY.md 'Policy settings': 'When transfers between the customer's own accounts explain activity at 5 times the declared income or volume or more, send an RFI for an updated expected income or volume. Below 5 times, close.'"
+  },
+  "own_account_evidence": {
+   "value": "document required",
+   "source": "POLICY.md 'Policy settings': 'An account in the customer's own name elsewhere counts as their own account only when a document on file shows the customer holds it.'"
+  },
+  "high_risk_countries": {
+   "value": 17,
+   "source": "POLICY.md 'Policy settings': 'Higher-risk countries as of 1 October 2026: Afghanistan, Belarus, Democratic Republic of the Congo, Haiti, Iran, Iraq, Lebanon, Libya, Mali, Myanmar, North Korea, Russia, Somalia, South Sudan, Syria, Venezuela, Yemen.'"
+  },
+  "list_match": {
+   "value": "one detail is not enough",
+   "source": "POLICY.md 'Policy settings': 'Close a list match only when the evidence shows the counterparty is a different party. If nothing on file settles it either way and nothing else is concerning, send an RFI. If the evidence shows the listed party is the counterparty or controls it, escalate.'"
+  },
+  "previous_review": {
+   "value": "covers only what it describes",
+   "source": "POLICY.md 'Policy settings': 'An earlier review covers only what it describes. It does not explain new or larger activity.'"
+  },
+  "context_only": {
+   "value": 7,
+   "source": "POLICY.md 'Policy settings': 'Round amounts, a shared device, IP address or contact details, a recipient added the same day, and crypto or gambling counterparties add context. None of them raises an alert on its own.'"
+  },
+  "tm01_multiple_individual": {
+   "value": 3,
+   "source": "POLICY.md 'Rules this institution runs', TM01: 'Money received over 30 days is more than 3 times the declared monthly income of an individual, or more than 2 times the declared monthly turnover of a business.'"
+  },
+  "tm01_multiple_business": {
+   "value": 2,
+   "source": "POLICY.md 'Rules this institution runs', TM01: '... or more than 2 times the declared monthly turnover of a business.'"
+  },
+  "tm02_share": {
+   "value": 0.8,
+   "source": "POLICY.md 'Rules this institution runs', TM02: 'Over 10 days, at least 80% of the money deposited (GBP 2,000.00 or more) is withdrawn within 10 days, and less than 20% of it was invested.'"
+  },
+  "tm02_withdrawn_days": {
+   "value": 10,
+   "source": "POLICY.md 'Rules this institution runs', TM02: '... is withdrawn within 10 days'"
+  },
+  "tm02_invested_share": {
+   "value": 0.2,
+   "source": "POLICY.md 'Rules this institution runs', TM02: '... and less than 20% of it was invested.'"
+  },
+  "tm06_min": {
+   "value": 5000.0,
+   "source": "POLICY.md 'Rules this institution runs', TM06: 'Payments of GBP 5,000.00 or more within 30 days to or from a higher-risk country the customer did not declare.'"
+  },
+  "tm06_window_days": {
+   "value": 30,
+   "source": "POLICY.md 'Rules this institution runs', TM06: '... within 30 days ...'"
+  },
+  "tm07_min": {
+   "value": 5000.0,
+   "source": "POLICY.md 'Rules this institution runs', TM07: 'GBP 5,000.00 or more moves after 180 days with no activity on the account.'"
+  },
+  "tm07_days": {
+   "value": 180,
+   "source": "POLICY.md 'Rules this institution runs', TM07: '... after 180 days with no activity'"
+  },
+  "tm08_min": {
+   "value": 1000.0,
+   "source": "POLICY.md 'Rules this institution runs', TM08: 'A deposit of GBP 1,000.00 or more comes from, or a withdrawal goes to, an account whose holder name is not the customer's.'"
+  },
+  "tm10_days": {
+   "value": 90,
+   "source": "POLICY.md 'Rules this institution runs', TM10: 'Fund units are sold back within 90 days of being bought.'"
+  }
+ },
  "tm01_multiple_individual": 3,
+ "tm01_multiple_business": 2,
+ "tm01_window_days": 30,
  "tm02_share": 0.8,
  "tm02_withdrawn_days": 10,
  "tm02_invested_share": 0.2,
- "tm06_min": 5000,
- "tm07_min": 5000,
+ "tm06_min": 5000.0,
+ "tm06_window_days": 30,
+ "tm07_min": 5000.0,
  "tm07_days": 180,
- "tm08_min": 1000,
+ "tm08_min": 1000.0,
  "tm10_days": 90,
- "_institution": "investment"
+ "cash_reporting_threshold": 10000.0,
+ "own_account_rfi_multiple": 5
 }

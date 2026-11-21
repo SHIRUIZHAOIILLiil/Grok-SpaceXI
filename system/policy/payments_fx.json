@@ -1,5 +1,6 @@
 {
- "_source": "data/institutions/<inst>/POLICY.md — verify every number against the file before use (owner A)",
+ "_institution": "payments_fx",
+ "_source": "data/institutions/payments_fx/POLICY.md - every number below is transcribed from the quoted line (owner A, checked 2026-11-21)",
  "codes": {
   "CLOSE": [
    "COLLECTION_DOCUMENTED",
@@ -34,6 +35,16 @@
    "ESC_LISTED_PARTY"
   ]
  },
+ "rules_run": [
+  "TM01",
+  "TM02",
+  "TM03",
+  "TM04",
+  "TM06",
+  "TM07",
+  "TM08",
+  "TM22"
+ ],
  "high_risk_countries": [
   "Afghanistan",
   "Belarus",
@@ -53,7 +64,7 @@
   "Venezuela",
   "Yemen"
  ],
- "own_account_rfi_multiple": 5,
+ "high_risk_countries_as_of": "2026-10-01",
  "context_only": [
   "round amount",
   "shared device",
@@ -63,17 +74,119 @@
   "crypto counterparty",
   "gambling counterparty"
  ],
+ "thresholds": {
+  "cash_reporting_threshold": {
+   "value": 10000.0,
+   "source": "POLICY.md 'Policy settings': 'Cash reporting threshold: GBP 10,000.00.'"
+  },
+  "own_account_rfi_multiple": {
+   "value": 5,
+   "source": "POLICY.md 'Policy settings': 'When transfers between the customer's own accounts explain activity at 5 times the declared income or volume or more, send an RFI for an updated expected income or volume. Below 5 times, close.'"
+  },
+  "own_account_evidence": {
+   "value": "document required",
+   "source": "POLICY.md 'Policy settings': 'An account in the customer's own name elsewhere counts as their own account only when a document on file shows the customer holds it.'"
+  },
+  "high_risk_countries": {
+   "value": 17,
+   "source": "POLICY.md 'Policy settings': 'Higher-risk countries as of 1 October 2026: Afghanistan, Belarus, Democratic Republic of the Congo, Haiti, Iran, Iraq, Lebanon, Libya, Mali, Myanmar, North Korea, Russia, Somalia, South Sudan, Syria, Venezuela, Yemen.'"
+  },
+  "list_match": {
+   "value": "one detail is not enough",
+   "source": "POLICY.md 'Policy settings': 'Close a list match only when the evidence shows the counterparty is a different party. If nothing on file settles it either way and nothing else is concerning, send an RFI. If the evidence shows the listed party is the counterparty or controls it, escalate.'"
+  },
+  "previous_review": {
+   "value": "covers only what it describes",
+   "source": "POLICY.md 'Policy settings': 'An earlier review covers only what it describes. It does not explain new or larger activity.'"
+  },
+  "context_only": {
+   "value": 7,
+   "source": "POLICY.md 'Policy settings': 'Round amounts, a shared device, IP address or contact details, a recipient added the same day, and crypto or gambling counterparties add context. None of them raises an alert on its own.'"
+  },
+  "tm01_multiple": {
+   "value": 2,
+   "source": "POLICY.md 'Rules this institution runs', TM01: 'Money received over 30 days is more than 2 times the monthly share of the expected annual payment volume the client declared.'"
+  },
+  "tm01_window_days": {
+   "value": 30,
+   "source": "POLICY.md 'Rules this institution runs', TM01: 'Money received over 30 days'"
+  },
+  "tm02_share": {
+   "value": 0.8,
+   "source": "POLICY.md 'Rules this institution runs', TM02: 'Over 10 days, at least 80% of the money received from anyone other than the client (GBP 2,000.00 or more) is paid out within 48 hours of arriving.'"
+  },
+  "tm02_paid_within_hours": {
+   "value": 48,
+   "source": "POLICY.md 'Rules this institution runs', TM02: '... paid out within 48 hours of arriving.'"
+  },
+  "tm02_window_days": {
+   "value": 10,
+   "source": "POLICY.md 'Rules this institution runs', TM02: 'Over 10 days'"
+  },
+  "tm02_floor_gbp": {
+   "value": 2000.0,
+   "source": "POLICY.md 'Rules this institution runs', TM02: '(GBP 2,000.00 or more)'"
+  },
+  "tm03_count": {
+   "value": 3,
+   "source": "POLICY.md 'Rules this institution runs', TM03: '3 or more payments to the same beneficiary, each between GBP 9,000.00 and GBP 9,999.99, within 10 days.'"
+  },
+  "tm03_min": {
+   "value": 9000.0,
+   "source": "POLICY.md 'Rules this institution runs', TM03: 'each between GBP 9,000.00 and GBP 9,999.99'"
+  },
+  "tm03_max": {
+   "value": 9999.99,
+   "source": "POLICY.md 'Rules this institution runs', TM03: 'each between GBP 9,000.00 and GBP 9,999.99'"
+  },
+  "tm04_limit": {
+   "value": 25,
+   "source": "POLICY.md 'Rules this institution runs', TM04: 'The client pays more than 25 different beneficiaries within 30 days.'"
+  },
+  "tm04_window_days": {
+   "value": 30,
+   "source": "POLICY.md 'Rules this institution runs', TM04: '... within 30 days.'"
+  },
+  "tm06_min": {
+   "value": 5000.0,
+   "source": "POLICY.md 'Rules this institution runs', TM06: 'Payments of GBP 5,000.00 or more within 30 days to or from a higher-risk country the customer did not declare.'"
+  },
+  "tm07_min": {
+   "value": 5000.0,
+   "source": "POLICY.md 'Rules this institution runs', TM07: 'GBP 5,000.00 or more moves after 180 days with no activity on the account.'"
+  },
+  "tm07_days": {
+   "value": 180,
+   "source": "POLICY.md 'Rules this institution runs', TM07: '... after 180 days with no activity'"
+  },
+  "tm08_min": {
+   "value": 1000.0,
+   "source": "POLICY.md 'Rules this institution runs', TM08: 'Funding of GBP 1,000.00 or more comes from an account whose holder name is not the client's.'"
+  },
+  "invoice_required_above": {
+   "value": 10000.0,
+   "source": "POLICY.md 'Policy settings': 'Payments of GBP 10,000 or more to anyone other than the client need an invoice or contract on file before they are released. Transfers to accounts in the client's own name do not.'"
+  }
+ },
  "tm01_multiple": 2,
+ "tm01_basis": "monthly share of expected annual payment volume",
+ "tm01_window_days": 30,
  "tm02_share": 0.8,
  "tm02_paid_within_hours": 48,
+ "tm02_window_days": 10,
+ "tm02_floor_gbp": 2000.0,
  "tm03_count": 3,
- "tm03_min": 9000,
+ "tm03_min": 9000.0,
  "tm03_max": 9999.99,
+ "tm03_window_days": 10,
  "tm04_limit": 25,
- "tm06_min": 5000,
- "tm07_min": 5000,
+ "tm04_window_days": 30,
+ "tm06_min": 5000.0,
+ "tm06_window_days": 30,
+ "tm07_min": 5000.0,
  "tm07_days": 180,
- "tm08_min": 1000,
- "invoice_required_above": 10000,
- "_institution": "payments_fx"
+ "tm08_min": 1000.0,
+ "invoice_required_above": 10000.0,
+ "cash_reporting_threshold": 10000.0,
+ "own_account_rfi_multiple": 5
 }
