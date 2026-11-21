@@ -84,7 +84,8 @@ SHIM = """
 </script>
 """
 
-BANNER = ('<div style="position:fixed;left:0;right:0;bottom:0;z-index:99;'
+BANNER = ('<style>body{padding-bottom:46px}</style>'
+          '<div style="position:fixed;left:0;right:0;bottom:0;z-index:99;'
           'background:#1b2233;border-top:1px solid #2c3550;color:#c8d3ee;'
           'font:12px/1.5 ui-sans-serif,system-ui;padding:7px 14px;text-align:center">'
           'All data is published with the organizers\' consent. '
