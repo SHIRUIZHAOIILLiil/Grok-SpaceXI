@@ -148,7 +148,7 @@ pre.rawjson{margin:6px 0 0;background:#0a1119;border:1px solid var(--line);borde
 </style>
 </head>
 <body>
-<div style="position:fixed;left:0;right:0;bottom:0;z-index:99;background:#1b2233;border-top:1px solid #2c3550;color:#c8d3ee;font:12px/1.5 ui-sans-serif,system-ui;padding:7px 14px;text-align:center">Demo subset &middot; a sample of cases per institution, published for review. The full console runs locally over all 4,000 cases.</div>
+<div style="position:fixed;left:0;right:0;bottom:0;z-index:99;background:#1b2233;border-top:1px solid #2c3550;color:#c8d3ee;font:12px/1.5 ui-sans-serif,system-ui;padding:7px 14px;text-align:center">All data is published with the organizers' consent. Every case, customer and document is invented.</div>
 <header>
   <div class="htop">
     <h1>Track 1 · Suspicious payment alert review</h1>
@@ -168,27 +168,43 @@ pre.rawjson{margin:6px 0 0;background:#0a1119;border:1px solid var(--line);borde
 </main>
 
 <script>
-/* static-export shim: same /api shapes, served from json files */
+/* static-export shim: same /api shapes, served from sharded json files */
 (function(){
-  var orig = window.fetch.bind(window), cache = {};
-  function inst(id){
-    if (!cache[id]) cache[id] = orig('data/' + id + '.json').then(function(r){ return r.json(); });
-    return cache[id];
+  var orig = window.fetch.bind(window), rows = {}, chunks = {};
+  function get(url){
+    return orig(url).then(function(r){ if(!r.ok) throw new Error(url + ' ' + r.status); return r.json(); });
+  }
+  function rowsFor(inst){
+    if (!rows[inst]) rows[inst] = get('data/' + inst + '.rows.json');
+    return rows[inst];
+  }
+  function chunkFor(inst, n){
+    var key = inst + '.' + n;
+    if (!chunks[key]) chunks[key] = get('data/' + key + '.json');
+    return chunks[key];
   }
   function pack(obj){
-    return Promise.resolve(new Response(JSON.stringify(obj), {status:200, headers:{'Content-Type':'application/json'}}));
+    return Promise.resolve(new Response(JSON.stringify(obj),
+      {status:200, headers:{'Content-Type':'application/json'}}));
   }
   window.fetch = function(url, opts){
-    var u = String(url);
+    var u = String(url), m;
     if (u.indexOf('/api/summary') === 0) return orig('data/summary.json', opts);
-    var m1 = u.match(/\/api\/cases\?inst=([a-z_]+)/);
-    if (m1) return inst(m1[1]).then(function(d){ return pack({institution:m1[1], cases:d.rows}); });
-    var m2 = u.match(/\/api\/case\?inst=([a-z_]+)&case_id=([^&]+)/);
-    if (m2) return inst(m2[1]).then(function(d){
-      var hit = d.details[m2[2]];
-      if (!hit) { var first = d.rows[0]; hit = first ? d.details[first.case_id] : null; }
-      return pack(hit || {error:'unknown case_id'});
-    });
+    if ((m = u.match(/\/api\/cases\?inst=([a-z_]+)/))) {
+      return rowsFor(m[1]).then(function(d){ return pack({institution:m[1], cases:d}); });
+    }
+    if ((m = u.match(/\/api\/case\?inst=([a-z_]+)&case_id=([^&]+)/))) {
+      var inst = m[1], want = m[2];
+      return rowsFor(inst).then(function(list){
+        var row = null, i;
+        for (i = 0; i < list.length; i++) if (list[i].case_id === want) { row = list[i]; break; }
+        if (!row) row = list[0];
+        if (!row) return pack({error:'no cases'});
+        return chunkFor(inst, row.chunk).then(function(c){
+          return pack(c[row.case_id] || {error:'unknown case_id'});
+        });
+      });
+    }
     return orig(url, opts);
   };
 })();
