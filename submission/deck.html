@@ -132,7 +132,7 @@ pre{font:500 21px/1.65 var(--mono); color:#cdd8e8; background:#0c1119;
       margin-top:auto; padding-top:34px; font:500 16px var(--mono); color:var(--dim); letter-spacing:.6px}
 
 #bar{position:absolute; left:0; bottom:0; height:2px; background:var(--gold); width:0; transition:width .3s}
-#num{position:absolute; right:56px; bottom:30px; font:500 17px var(--mono); color:#41505f}
+#num{position:absolute; right:56px; bottom:26px; font:500 17px var(--mono); color:#41505f; line-height:20px}
 #hint{position:absolute; left:56px; bottom:30px; font:500 15px var(--sans); color:#4b5a6b; letter-spacing:.4px}
 
 /* narration — a quiet control that expands on hover */
@@ -140,14 +140,19 @@ pre{font:500 21px/1.65 var(--mono); color:#cdd8e8; background:#0c1119;
      text-align:center; font:400 22px/1.5 var(--sans); color:#a9b7c9; opacity:0;
      transition:opacity .18s; pointer-events:none}
 body.captions #cap{opacity:.92}
-#player{position:absolute; right:152px; bottom:22px; display:flex; align-items:center;
-        height:24px; opacity:.45; transition:opacity .22s}
+#player{position:absolute; right:150px; bottom:26px; display:flex; align-items:center;
+        height:20px; opacity:.45; transition:opacity .22s}
+#player::before{content:""; position:absolute; inset:-16px -22px; }  /* bigger hover target */
+#player.live{opacity:.9}
+#player.live #prog{width:120px}
+#player.live #clock{width:80px; margin-right:9px}
+#player.live #auto{opacity:1}
 #player:hover{opacity:1}
 #player button{appearance:none; background:none; border:none; color:#8a98ab; cursor:pointer;
-        font:500 12px var(--mono); letter-spacing:1.2px; padding:0 5px; height:24px; line-height:24px}
+        font:500 12px var(--mono); letter-spacing:1.2px; padding:0 5px; height:20px; line-height:20px}
 #player button:hover{color:var(--gold)}
-#pp{font-size:12px; width:20px}
-#clock{font:500 11px var(--mono); color:#55637a; width:0; overflow:hidden; white-space:nowrap;
+#pp{font-size:11px; width:18px; padding:0}
+#clock{font:500 11px var(--mono); color:#55637a; line-height:20px; width:0; overflow:hidden; white-space:nowrap;
        transition:width .22s, margin-right .22s}
 #prog{width:0; height:2px; background:#26303e; overflow:hidden; transition:width .22s; border-radius:1px}
 #prog i{display:block; height:100%; width:0; background:var(--gold); transition:width .12s linear}
@@ -156,6 +161,7 @@ body.captions #cap{opacity:.92}
 #player:hover #clock{width:80px; margin-right:9px}
 #player:hover #auto{opacity:1}
 #auto.on{color:var(--gold)}
+body.export #player,body.export #num,body.export #hint,body.export #bar{display:none}
 @media print{ #player{display:none} }
 #notes{position:fixed; left:0; right:0; bottom:0; max-height:34vh; overflow:auto; display:none;
        background:#05070a; border-top:1px solid #1b2431; padding:22px 40px; z-index:9;
@@ -429,12 +435,14 @@ body.notes #notes{display:block}
   }
   function play(){
     if (idx !== window.__cur()) load(window.__cur());
-    el.play().then(function(){ pp.innerHTML = '&#10074;&#10074;'; })
+    el.play().then(function(){ pp.innerHTML = '&#10074;&#10074;';
+                             document.getElementById('player').classList.add('live'); })
           .catch(function(){ pp.innerHTML = '&#9654;';
                              pp.style.borderColor = 'var(--gold)';
                              setTimeout(function(){ pp.style.borderColor = ''; }, 1600); });
   }
-  function pause(){ el.pause(); pp.innerHTML = '&#9654;'; }
+  function pause(){ el.pause(); pp.innerHTML = '&#9654;';
+    document.getElementById('player').classList.remove('live'); }
   el.addEventListener('loadedmetadata', function(){
     clock.textContent = '0:00 / ' + fmt(el.duration);
   });
@@ -445,6 +453,7 @@ body.notes #notes{display:block}
   });
   el.addEventListener('ended', function(){
     pp.innerHTML = '&#9654;';
+    if (!auto) document.getElementById('player').classList.remove('live');
     if (!auto) return;
     var n = idx + 1;
     if (n < clips.length){ window.__go(n); setTimeout(play, 450); }
