@@ -68,6 +68,8 @@
 | 字段 | 值 |
 |---|---|
 | GitHub 仓库（必填，公开） | `https://github.com/【org】/【repo】` |
+| 公开仓库 | https://github.com/SHIRUIZHAOIILLiil/Grok-SpaceXI |
+| Live demo（可选） | https://grok-spacexi.vercel.app |
 | 2 分钟视频（必填，可播放） | 【待填】YouTube unlisted / Loom / Vimeo / Google Drive 公开链接 |
 | Live demo（可选） | 建议留空，或视频里演示本地 `python3 ui/server.py`；现场没有公网就别承诺在线地址 |
 

@@ -135,16 +135,16 @@ same alert name means a different threshold in each folder, so every threshold i
 - **Generalisation.** No case ID, customer name, amount or document ID from `data/` is written into
   `system/`. The system learns document *templates* and *thresholds*, not answers.
 
-Snapshot of what the current build returns (12:20 GMT, 21 Nov 2026 — the console recomputes this
-live from `output/*.jsonl`, so it is never stale in the demo):
+Snapshot of what the current build returns on the 4,000 development cases (13:35 GMT, 21 Nov 2026 —
+the console recomputes this live from `output/*.jsonl`, so it is never stale in the demo):
 
 | Institution | CLOSE | RFI | ESCALATE | CLOSE rate |
 |---|---|---|---|---|
 | Bank | 461 | 217 | 322 | 46.1% |
 | Payments & FX | 500 | 188 | 312 | 50.0% |
 | E-money | 500 | 208 | 292 | 50.0% |
-| Investment | 455 | 145 | 400 | 45.5% |
-| **All four** | **1,916** | **758** | **1,326** | **47.9%** |
+| Investment | 500 | 145 | 355 | 50.0% |
+| **All four** | **1,961** | **758** | **1,281** | **49.0%** |
 
 ## Three real cases
 
@@ -262,5 +262,17 @@ verdicts can be read without running anything.
 
 ---
 
-*TODO(HQ) before the 17:00 freeze: re-run all four institutions, refresh the verdict snapshot table
-and the three case studies above if the decision table changed, and re-check `ui/benchmark.json`.*
+## What was verified, and how
+
+- `python3 tools/validate.py output/<inst>.jsonl --data data/institutions/<inst>` — 4,000/4,000 cases,
+  0 errors, 0 warnings: every cited ID exists in the case, every reason code belongs to its verdict,
+  every figure in a reason appears in the alerts, transactions or document text it cites.
+- `bash tools/repro.sh` — 5 runs x 4 institutions, byte-identical, 25 s.
+- `python3 tools/selftest.py` — 43/43 checks, including 11 classes of deliberately broken output.
+- `python3 tools/report.py` — verdict and reason-code distribution per institution and per rule.
+
+The live console is at https://grok-spacexi.vercel.app (static export of the same `output/`, no server
+required). `python3 ui/build_static.py` regenerates it.
+
+*Known open item at the freeze: 469 cases where our pseudo-label expects RFI and the system escalates
+(a conservative miss, cost 2 per case rather than 10; see `tools/LABELS.md`).*
